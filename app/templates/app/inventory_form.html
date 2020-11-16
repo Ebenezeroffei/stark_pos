@@ -1,0 +1,135 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+
+{% block head %}
+    <title>New Product</title>
+    <style>
+        input[type = submit]{
+            border: thin solid #333c59;
+            background: #333c59;
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0px 2px 5px rgba(0,0,0,.3);
+            transition: all .2s ease-in-out;
+        }
+        input[type = submit]:hover{
+            color: #333c59;
+            background: white;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="container-fluid">
+       <h3>New Product</h3><hr/>
+        <form action="." enctype="multipart/form-data" method="post">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-7">
+                    <div class="card h-100">
+                        <div class="card-header">Product Items</div>
+                        <div class="card-body p-2">
+                            <!-- Product Name -->
+                            <div class="form-group">
+                                {{form.name.label_tag}}
+                                {{form.name}}
+                            </div>
+                            <!-- Product Quantity -->
+                            <div class="form-group">
+                                {{form.quantity.label_tag}}
+                                {{form.quantity}}
+                            </div>
+                            <!-- Product Unit -->
+<!--
+                            <div class="form-group">
+                                {{form.unit.label_tag}}
+                                {{form.unit}}
+                            </div>
+-->
+                            <!-- Product Unit Cost -->
+                            <div class="form-group">
+                                {{form.unit_cost.label_tag}}
+                                {{form.unit_cost}}
+                            </div>
+                            <!-- Product Unit Price -->
+                            <div class="form-group">
+                                {{form.unit_price.label_tag}}
+                                {{form.unit_price}}
+                            </div>
+                            <!-- Product Image -->
+                            <div class="form-group">
+                                <label for="id_image">Image</label>
+                                <div class="input-group mb-3">
+                                  <div class="custom-file">
+                                    <input type="file" name="image" accept = 'image/*' class="custom-file-input" id="id_image">
+                                    <label class="custom-file-label" for="id_image" aria-describedby="inputGroupFileAddon02">Choose file</label>
+                                  </div>
+                                  <div class="input-group-append">
+                                    <span class="input-group-text">Upload</span>
+                                  </div>
+                                </div>
+                            </div>
+                            <div style="max-width: 300px;margin: auto;">
+                               {% if update %}
+                                    <input type="submit" class="btn btn-block mt-2 mb-2" value="Save Changes">
+                               {% else %}
+                                    <input type="submit" class="btn btn-block mt-2 mb-2" value="Create">
+                               {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Product Preview -->
+                <div class="col-md-5 mt-3 mt-md-0 mb-4">
+                    <div class="card">
+                        <div class="card-header">Product Preview</div>
+                        {% if update %}
+                            <img height="300px" src="{{object.image.url}}" id="image" class="card-img-top" alt="">
+                        {% else %}
+                            <img height="300px" src="{% static 'app/images/default_product_logo.png' %}" id="image" class="card-img-top" alt="">
+                        {% endif %}
+                        <div class="card-body p-2">
+                               {% if update %}
+                                    <h6 class="text-dark" style="text-overflow: ellipsis;width: 100%;white-space: nowrap;overflow: hidden;" id="name">{{ object.name }}</h6>
+                                    <p class="text-dark small m-auto">
+                                       Quantity Left:
+                                        <span class = 'text-primary' id="qty">{{ object.quantity }}</span>
+                                    </p>
+                                    <p class="text-dark small m-auto">
+                                       Unit Cost:
+                                        <span class = 'text-primary' id="cost">GH&#8373; {{object.unit_cost}}</span>
+                                    </p>
+                                    <p class="text-dark small m-auto">
+                                       Unit Price:
+                                        <span class = 'text-primary' id="price">GH&#8373; {{ object.unit_price }}</span>
+                                    </p>
+                               {% else %}
+                                    <h6 class="text-dark" style="text-overflow: ellipsis;width: 100%;white-space: nowrap;overflow: hidden;" id="name">Product Name</h6>
+                                    <p class="text-dark small m-auto">
+                                       Quantity Left:
+                                        <span class = 'text-primary' id="qty">1</span>
+                                    </p>
+                                    <p class="text-dark small m-auto">
+                                       Unit Cost:
+                                        <span class = 'text-primary' id="cost">GH&#8373; 0.00</span>
+                                    </p>
+                                    <p class="text-dark small m-auto">
+                                       Unit Price:
+                                        <span class = 'text-primary' id="price">GH&#8373; 0.00</span>
+                                    </p>
+                                {% endif %}
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+{% block javascript %}
+    <script src="{% static 'app/inventory.js' %}"></script>
+    <script>
+        inventoryInit();
+        updatePreview();
+        inventoryCreateUpdateInit();
+    </script>
+{% endblock %}

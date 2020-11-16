@@ -1,0 +1,73 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+
+{% block head %}
+    <title>{{ object.name }}</title>
+{% endblock %}
+{% block content %}
+    <div class="container-fluid">
+     {% csrf_token %}
+      <!-- Product Details -->
+       <div class="card">
+           <div class="row">
+                <div class="col-md-6">
+                    <img src="{{ object.image.url }}" height="300px" class="card-img-top" alt="">
+                </div>
+                <div class="col-md-6 ml-2 ml-md-0">
+                    <h3 style = 'color: lightslategray'>{{ object.name }}</h3>
+                    <div class="row">
+                       <!-- Unit Price -->
+                        <div class="col-6">
+                            <p class="lead">
+                                Unit Price<br/>
+                                <span class="text-info" id="price">GH&#8373; {{ object.unit_price }}</span>
+                            </p>
+                        </div>
+                        <!-- Unit Cost -->
+                        <div class="col-6">
+                            <p class="lead">
+                                Unit Cost<br/>
+                                <span class="text-info" id="cost">GH&#8373; {{ object.unit_cost }}</span>
+                            </p>
+                        </div>
+                        <!-- Quantity Left -->
+                        <div class="col-6">
+                            <p class="lead">
+                                Quantity Left<br/>
+                                <span class="text-info">{{ object.quantity }}</span>
+                            </p>
+                        </div>
+                        <!-- Profit -->
+                        <div class="col-6">
+                            <p class="lead">
+                                Profit<br/>
+                                <span class="text-info" id="profit"></span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+       </div>
+       <!-- Product Analysis -->
+       <!-- 7 days -->
+       <div class="card mt-3">
+          <div class="card-header">{{ object.name }} Sales For The Past 7 Days</div>
+           <canvas width="100%" height=40% id="product-chart-7-days"></canvas>
+       </div>
+       <!-- Monthly -->
+       <div class="card mt-3">
+          <div class="card-header">{{ object.name }} Sales For The Past Month - <span id="past-month"></span></div>
+           <canvas width="100%" height=40% id="product-chart-monthly"></canvas>
+       </div>
+    </div>
+{% endblock %}
+{% block javascript %}
+    <script src="{% static 'app/Chart.bundle.min.js' %}"></script>
+    <script src="{% static 'app/inventory.js' %}"></script>
+    <script>
+        inventoryInit();
+        productAnalysis("{% url 'app:inventory_analysis' %}",{{object.id}},$("input[name = csrfmiddlewaretoken]").val());
+        calculateProfit();
+    </script>
+{% endblock %}

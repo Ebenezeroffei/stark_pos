@@ -1,0 +1,52 @@
+{% extends 'company/base.html' %}
+{% load static %}
+
+
+{% block head %}
+    <title>Login</title>
+    <style>
+        input[name = username], input[name = password]{
+            border-radius: 20px;
+        }
+        input[name = username]:focus, input[name = password]:focus{
+            box-shadow: none;
+        }
+        input[type = submit]{
+            color: white;
+            background: #42506b;
+            border-radius: 20px;
+            transition:  all .2s ease-in-out;
+        }
+        input[type = submit]:hover{
+            color: white;
+            background: #333c59;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <form action="." class="w-100" method="post">
+
+      {% csrf_token %}
+      <!-- Check if someone is trying to access a page without loggin in -->
+     {% if request.GET.next %}
+         <input type="hidden" name = 'next' value="{{request.GET.next}}">
+     {% endif %}
+       <h4 class="text-muted text-center mb-5">Sign into your account</h4>
+       {% for error in form.non_field_errors %}
+                    <p class="text-danger small">{{error}}</p>
+                {% endfor %}
+        {% for field in form %}
+            <div class="form-group">
+                {{field.label_tag}}
+                {{field}}
+            </div>
+        {% endfor %}
+        <input type="submit" class = 'mt-5 mb-5 btn btn-block' value="Login">
+    </form>
+{% endblock %}
+{% block javascript %}
+    <script>
+        // Add boostrap styles to the input fields
+        $('#id_username, #id_password').attr('class','form-control')
+    </script>
+{% endblock %}

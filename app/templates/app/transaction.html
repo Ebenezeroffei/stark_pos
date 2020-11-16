@@ -1,0 +1,103 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+
+{% block head %}
+    <title>Transactions</title>
+    <style>
+/*
+        #growth{
+            box-shadow: 0px 2px 5px rgba(0,0,0,.4);
+            border-radius: 5px;
+        }
+*/
+        /* Media query from 0 - 770px */
+        @media only screen and (max-width:770px){
+            .transaction-total{
+                display: none;
+            }
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between">
+           <h3>Transactions</h3>
+           <div>
+                <a href = "{% url 'app:transaction_create' %}" class = 'btn btn-primary'> New Transaction </a>
+           </div>
+        </div>
+        <hr/>
+        <!-- Total Cost, Total Revenue and Profit -->
+        <div class="card">
+            <div class="card-header">Cost Revenue Analysis For Today</div>
+            <div class="card-body p-2">
+                <div class="row ml-0 mr-0" id="growth">
+                   <div class="col mt-2">
+                        <h5 class = 'text-muted mt-1'>Total Revenue</h5>
+                        <p style="font-size:30px" class = 'text-info' id="revenue">GH&#8373; {{ user.costrevenueanalysis_set.first.total_revenue }}</p>
+                    </div>
+                    <div class="col mt-2">
+                        <h5 class = 'text-muted mt-1' >Total Cost</h5>
+                        <p style="font-size:30px" class = 'text-danger' id="cost">GH&#8373; {{ user.costrevenueanalysis_set.first.total_cost }}</p>
+                    </div>
+                    <div class="col mt-2">
+                        <h5 class = 'text-muted mt-1' >Profit</h5>
+                        <p style="font-size:30px" class = 'text-success' id="profit">GH&#8373; {{user.costrevenueanalysis_set.first.profit}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Recent Transactions For Today -->
+        <div class="card mt-3 mb-3">
+            <div class="card-header">Transactions For Today <span class="badge badge-dark">{{total_transaction_for_today}}</span></div>
+            <ul class = 'list-group'>
+                {% for transaction in transactions %}
+                   <li class="list-group-item p-2">
+                       <!-- Items, Prices and Quantity -->
+                        <div class="row">
+                            <div class="col-6 col-md-6">
+                                <p class="text-muted small">Items</p>
+                            </div>
+                            <div class="col-3 col-md-2">
+                                <p class="text-muted small text-center">Quantity</p>
+                            </div>
+                            <div class="col-3 col-md-2">
+                                <p class="text-muted small text-center">Unit Price<br/>GH&#8373;</p>
+                            </div>
+                            <div class="col-0 col-md-2">
+                                <p class="text-muted small text-center transaction-total">Total<br/>GH&#8373;</p>
+                            </div>
+                        </div>
+                        {% for item in transaction.transactionitem_set.all %}
+                            <div class="row">
+                                <div class="col-6 col-md-6">
+                                    <p class="small m-auto">{{item.product_name}}</p>
+                                </div>
+                                <div class="col-3 col-md-2">
+                                    <p class=" small text-center m-auto">{{item.product_quantity}}</p>
+                                </div>
+                                <div class="col-3 col-md-2">
+                                    <p class=" small text-center m-auto">{{ item.product_price }}</p>
+                                </div>
+                                <div class="col-0 col-md-2">
+                                    <p class=" small text-center m-auto transaction-total">{{ item.total }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        <!-- Total -->
+                        <hr class = 'bg-dark'/>
+                        <p class = 'mt-2 mb-0 text-secondary'>Total: <span class = 'text-primary'>GH&#8373; {{transaction.total}}</span></p>
+                    </li>
+               {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+{% block javascript %}
+    <script src="{% static 'app/transaction.js' %}"></script>
+    <script>
+        transactionsInit();
+//        calculateProfit();
+    </script>
+{% endblock %}

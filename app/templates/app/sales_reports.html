@@ -1,0 +1,137 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+
+{% block head %}
+    <title>Sales Reports</title>
+    <style>
+        #sales-report-options > div > a > .card{
+            transition: all .2s ease-in-out;
+            cursor: pointer;
+        }
+        #sales-report-options > div > a > .card:hover{
+            box-shadow: rgb(209, 209, 213) 0px 10px 15px;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="container-fluid">
+       {% csrf_token %}
+        <h3>Sales Reports</h3><hr/>
+        <div class="row mb-4 justify-content-center" id="sales-report-options">
+           <!-- Today -->
+            <div class="col-md-4 col-sm-6">
+               <a href="{% url 'app:sales_report_template' 'today' %}">
+                   <div class="card">
+                        <img src="{% static 'app/images/today.png' %}" alt="" class="card-img-top">
+                    </div>
+               </a>
+            </div>
+            <!-- Past 7 Days -->
+            <div class="col-md-4 col-sm-6 mt-3 mt-sm-0">
+               <a href="{% url 'app:sales_report_template' 'past-7-days' %}">
+                   <div class="card">
+                        <img src="{% static 'app/images/past_seven_days.png' %}" alt="" class="card-img-top">
+                    </div>
+               </a>
+            </div>
+            <!-- Last Week -->
+            <div class="col-md-4 col-sm-6 mt-3 mt-md-0 ">
+               <a href="{% url 'app:sales_report_template' 'last-week' %}">
+                   <div class="card">
+                        <img src="{% static 'app/images/last_week.png' %}" alt="" class="card-img-top">
+                    </div>
+               </a>
+            </div>
+            <!-- Last Month -->
+            <div class="col-md-4 col-sm-6 mt-3">
+               <a href="{% url 'app:sales_report_template' 'last-month' %}">
+                   <div class="card">
+                        <img src="{% static 'app/images/last_month.png' %}" alt="" class="card-img-top">
+                    </div>
+               </a>
+            </div>
+            <!-- Custom -->
+            <div class="col-md-4 col-sm-6 mt-3">
+                <div class="card" id="custom">
+                    <img src="{% static 'app/images/custom.png' %}" alt="" class="card-img-top">
+                </div>
+            </div>
+        </div>
+        <div id="custom-sales-report-options">
+            <div class="row">
+                <div class="col-12">
+                    <h4 class="text-center">Duration: Monthly</h4>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label for="from">Total Number of Months</label>
+                        <select class = 'form-control' id="total-number-of-months">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                        </select>
+                        <p class="small text-muted">How many months do you want to generate the sales report</p>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label for="from">Start From:</label>
+                        <select class = 'form-control' id="from"></select>
+                    </div>
+                </div>
+            </div>
+            <div style="max-width: 400px;margin: auto">
+                <button id="generate" class="btn btn-block btn-dark mt-5 mb-5">Generate Custom Sales Report </button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block javascript %}
+    <script>
+        // A function that runs when the program loads
+        let salesReportInit = () => {
+            let salesReport = $('#active').parents('ul').find('li').eq(4).find('a');
+            // Make the dashboard section be active
+            $('#active').removeAttr('id');
+            salesReport.attr('id','active');
+            $("#custom-sales-report-options").slideUp(0);
+            $("#custom").click(function(){
+                $("#sales-report-options").slideUp(function(){
+                    $("#custom-sales-report-options").slideDown();
+                });
+            });
+        }
+        salesReportInit()
+
+        // A function that diplays the months of a year
+        let displayMonths = () => {
+            let todaysDate = new Date();
+            let startMonth = 0;
+            let endMonth = todaysDate.getMonth() - 1;
+            let months = ['January','Februray','March','April','May','June','July','August','September','October','November','December']
+            for(let month = 0;month <= endMonth; month++){
+//                console.log(months[month]);
+                $('#from').append(
+                    `<option value = ${month + 1}>${months[month]}</option>`
+                );
+            }
+        }
+        displayMonths()
+
+        // A function that sends an ajax request to generate a custom sales report
+        let generateCustomSalesReport = () => {
+            $('#generate').click(function(){
+                let totalMonths = $('#total-number-of-months').val();
+                let startFrom = $('#from').val();
+                window.location.assign(`{% url 'app:sales_report_template' 'custom' %}?tm=${totalMonths}&sf=${startFrom}`);
+            });
+        }
+         generateCustomSalesReport()
+    </script>
+{% endblock %}

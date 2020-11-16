@@ -1,0 +1,107 @@
+{% extends 'app/base.html' %}
+<!--{% load static %}-->
+
+
+{% block head %}
+    <title>Company Profile</title>
+    <style>
+        div.form-group > label[for = id_image]{
+            display: none;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="container">
+      <h5 class="text-muted">Overview</h5>
+      <h3 style="color: #535353;">Company Details</h3><hr/>
+       <form action="." method="post" enctype="multipart/form-data">
+           {% csrf_token %}
+           <!-- Comapny Image -->
+            <div class="text-center p-md-1 p-3">
+                <img id="image-preview" style="border: 8px solid rgba(0,0,0,.2);width: 250px;height: 250px; border-radius: 50%" src="{{user.companydetails.image.url}}" alt=""><br/>
+            </div>
+            <div class="row mt-4">
+                <!-- Company Details -->
+                {% for field in form1 %}
+                   <!-- Username and Email -->
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            {{field.label_tag}}
+                            {{field}}
+                        </div>
+                    </div>
+                {% endfor %}
+                <div class="col-sm-6">
+                   <!-- Name -->
+                    <div class="form-group">
+                        {{form2.name.label_tag}}
+                        {{form2.name}}
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <!-- Location -->
+                    <div class="form-group">
+                        {{form2.location.label_tag}}
+                        {{form2.location}}
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <!-- Phone 1 -->
+                    <div class="form-group">
+                        {{form2.mobile1.label_tag}}
+                        {{form2.mobile1}}
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <!-- Phone 2 -->
+                    <div class="form-group">
+                        {{form2.mobile2.label_tag}}
+                        {{form2.mobile2}}
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <!-- Comapny Image -->
+                    <div class="form-group">
+                        <label>Company Logo:</label>
+                        <div class="input-group">
+                            <div class="custom-file">
+                                <input type="file" accept="image/*" name="image" id = 'id_image' class="custom-file-input">
+                                <label for="id_image" class="custom-file-label">{{user.companydetails.image.url}}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="max-width: 300px;margin: auto">
+                   <button type="submit" class="btn btn-block btn-secondary btn-outline-dark text-light mt-2 mb-5" style="box-shadow: none;" >Save Changes</button>
+            </div>
+       </form>
+    </div>
+{% endblock %}
+{% block javascript %}
+    <script>
+        let profileInit = () => {
+            let profile = $('#active').parents('ul').find('li').eq(5).find('a');
+            // Make the transactions section be active
+            $('#active').removeAttr('id');
+            profile.attr('id','active');
+        }
+        profileInit();
+
+        // A function that shows a preview of a selected image
+        let loadPreview = () => {
+            $('#id_image').change(function(){
+                let image = document.getElementById('id_image').files[0];
+                let file = new FileReader()
+
+                file.readAsDataURL(image);
+
+                file.onload = () => {
+                    $('#image-preview').attr('src',file.result);
+                    $('label[for = id_image]').text($('#id_image').val());
+                }
+            });
+        }
+        loadPreview()
+    </script>
+{% endblock %}

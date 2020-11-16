@@ -1,0 +1,267 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name = 'viewport' content = 'width=device-width,initial-scale=1.0'>
+    <link rel="stylesheet" href="{% static 'app\print.min.css' %}">
+    <script src="{% static 'app\print.min.js' %}"></script>
+    <title>Sales Report</title>
+    <style>
+        h3{
+            font-size: 1.7rem;
+            font-family: sans-serif;
+            margin:auto;
+            text-align: center;
+        }
+        h5{
+            font: 1.25rem sans-serif;
+            color: #6c757d;
+            margin:auto;
+            text-align: center;
+            color: rgba(0,0,0,.7);
+        }
+        table{
+            margin-top: 20px;
+            display: table;
+            border-collapse: collapse;
+            box-sizing: border-box;
+            border-spacing: 2px;
+            border-color: grey;
+            font-family: sans-serif;
+        }
+        thead > tr > th{
+            color: dodgerblue;
+        }
+        thead > tr > th{
+            padding: 18px 8px;
+            font-size: 1.0rem;
+        }
+        thead > tr > th:first-child{
+            text-align: left;
+        }
+        tbody > tr > td{
+            text-align: center;
+            color: #212529;
+            font-size: 1rem;
+            padding: 18px 8px;
+        }
+        tbody > tr > td:first-child{
+            text-align: left;
+        }
+        tbody > tr{
+            border-bottom: thin solid rgba(0,0,0,.125);
+        }
+        p{
+            color: #007bff;
+            font: 20px sans-serif;
+            margin-top: 30px;
+        }
+        p > span{
+            color: #212529;
+        }
+        #print{
+            margin-top: 30px;
+            color: white;
+            background-color: dodgerblue;
+            border: thin solid dodgerblue;
+            transition: all .2s ease-in-out;
+            font-size: 20px;
+            border-radius: 5px;
+            padding: 6px 20px;
+            cursor: pointer;
+        }
+        #print:hover{
+            color: dodgerblue;
+            background-color: white;
+        }
+    </style>
+</head>
+<body>
+    <div id="report">
+        <h3>{{ user.companydetails.name }}</h3><hr/>
+        <h5>{{title}}</h5>
+    <!-- Last Week -->
+    {% if duration == 'last-week' %}
+        <table style="width: 100%">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Monday</th>
+                    <th>Tuesday</th>
+                    <th>Wednesday</th>
+                    <th>Thursday</th>
+                    <th>Friday</th>
+                    <th>Saturday</th>
+                    <th>Sunday</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <!-- Display all the products and their quantities -->
+            {% for product,product_data in data.items %}
+                <tr>
+                   <!-- Product -->
+                    <td>{{product}}</td>
+                    {% for quantity in product_data.values %}
+                       <!-- Quantity -->
+                        <td class="{% cycle 'data-1' 'data-2' 'data-3' 'data-4' 'data-5' 'data-6' 'data-7' 'total' %}">{{quantity}}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </table>
+    <!-- Today -->
+    {% elif duration == 'today' %}
+        <table style="width: 100%">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product,quantity in data.items %}
+                    <tr>
+                        <td>{{product}}</td>
+                        <td>{{quantity}}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    <!-- Last Month -->
+    {% elif duration == 'last-month' %}
+        <table style="width: 100%">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Week 1</th>
+                    <th>Week 2</th>
+                    <th>Week 3</th>
+                    <th>Week 4</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product,product_data in data.items %}
+                    <tr>
+                        <td>{{product}}</td>
+                        {% for quantity in product_data.values %}
+                            <td>{{ quantity }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    <!-- Past 7 Days -->
+    {% elif duration == 'past-7-days' %}
+        <table style="width: 100%">
+            <thead>
+                <tr>
+                   <th>Product</th>
+                    {% for day in past_7_days %}
+                        <th>{{day}}</th>
+                    {% endfor %}
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product,product_data in data.items %}
+                    <tr>
+                        <td>{{product}}</td>
+                        {% for quantity in product_data.values %}
+                            <td>{{quantity}}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    <!-- Custom -->
+    {% elif duration == 'custom' %}
+        <table style = 'width: 100%'>
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    {% for month in months %}
+                        <th>{{month}}</th>
+                    {% endfor %}
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product,product_data in data.items %}
+                    <tr>
+                        <td>{{ product }}</td>
+                        {% for quantity in product_data.values %}
+                            <td>{{quantity}}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+    <p>Total Items Sold: <span>{{ total }}</span></p>
+    </div>
+    <button type="button" id="print">Print Report</button>
+    <script>
+        // Print the report
+        document.getElementById('print').onclick = () => {
+            printJS({
+                printable: 'report',
+                type: 'html',
+                style: `h3{
+            font-size: 1.7rem;
+            font-family: sans-serif;
+            margin:auto;
+            text-align: center;
+        }
+        h5{
+            font: 1.25rem sans-serif;
+            color: #6c757d;
+            margin:auto;
+            text-align: center;
+            color: rgba(0,0,0,.7);
+        }
+        table{
+            margin-top: 20px;
+            display: table;
+            border-collapse: collapse;
+            box-sizing: border-box;
+            border-spacing: 2px;
+            border-color: grey;
+            font-family: sans-serif;
+        }
+        thead{
+            background: #343a40;
+            color: white;
+        }
+        thead > tr > th{
+            padding: 18px 8px;
+            font-size: 1.0rem;
+        }
+        thead > tr > th:first-child{
+            text-align: left;
+        }
+        tbody > tr > td{
+            text-align: center;
+            color: #212529;
+            font-size: 1rem;
+            padding: 18px 8px;
+        }
+        tbody > tr > td:first-child{
+            text-align: left;
+        }
+        tbody > tr{
+            border-bottom: thin solid rgba(0,0,0,.125);
+        }
+        p{
+            color: #007bff;
+            font: 20px sans-serif;
+            margin-top: 30px;
+        }
+        p > span{
+            color: #212529;
+        }`
+            });
+        }
+    </script>
+</body>
+</html>
