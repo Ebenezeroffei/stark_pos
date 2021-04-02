@@ -25,8 +25,21 @@ class IndexView(generic.View):
     def dispatch(self,request,*args,**kwargs):
         todays_date = date.today()
         transaction = request.user.transaction_set.filter(date = todays_date)[:10]
+        # stock = request.user.stockoverview
         context = {
-            'transactions': transaction
+            'transactions': transaction,
+            # 'stock':{
+            #     'width':stock.stock_left/stock.stock,
+            #     'max': stock.stock,
+            #     'text': f"{stock.stock_left} of {stock.stock} left",
+            #     'value': stock.stock_left
+            # }
+            'stock':{
+                'width':.5,
+                'max': 100,
+                'text': "50 of 100 left",
+                'value': 50
+            }
         }
         reset_data = utils.reset_data(request.user,CostRevenueAnalysis,StockOverview)
         response =  render(request,self.template_name,context)

@@ -1,4 +1,8 @@
-from django.shortcuts import render
+from django.contrib import messages
+from app.models import CompanyDetails
+from django.http import request
+from django.contrib.auth import logout
+from django.shortcuts import get_object_or_404, render
 from django.views import generic
 from django.contrib.auth.views import LoginView
 from django.utils.decorators import method_decorator
@@ -11,10 +15,14 @@ class CompanyLoginView(LoginView):
     template_name = 'company/login.html'
 
     def get_success_url(self,*args,**kwargs):
-        print("Wow")
-        if self.request.POST.get('next'):
-            return self.request.POST.get('next')
-        return reverse('app:home')
+        try:
+            company = self.request.user.companydetails
+            return self.request.POST.get('next') if company else reverse('app:home')
+        except CompanyDetails.DoesNotExist:
+            print("So i didnt get it")
+            messages.success(self.request,"You have not being authorised to access this page")
+            logout(self.request)
+            return reverse('company:login')
 
 
 class CompanyProfileView(generic.View):

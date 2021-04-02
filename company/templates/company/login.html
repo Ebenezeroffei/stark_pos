@@ -25,15 +25,19 @@
 {% endblock %}
 {% block content %}
     <form action="." class="w-100" method="post">
-
       {% csrf_token %}
       <!-- Check if someone is trying to access a page without loggin in -->
      {% if request.GET.next %}
          <input type="hidden" name = 'next' value="{{request.GET.next}}">
      {% endif %}
        <h4 class="text-muted text-center mb-5">Sign into your account</h4>
+       {% if messages %}
+            {% for message in messages %}
+                <p class="small alert alert-info">{{message}}</p>
+            {% endfor %}
+        {% endif %}
        {% for error in form.non_field_errors %}
-                    <p class="text-danger small">{{error}}</p>
+                    <p class="alert alert-danger small">{{error}}</p>
                 {% endfor %}
         {% for field in form %}
             <div class="form-group">
