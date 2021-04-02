@@ -1,2 +1,4 @@
 Main_App:
     - Create the product data to monitor transactions when a product is created
+    - Users can download their sales report
+    - Redesign the saled report section

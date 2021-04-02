@@ -5,12 +5,25 @@
 {% block head %}
     <title>Sales Reports</title>
     <style>
-        #sales-report-options > div > a > .card{
+        #sales-report-options > div .card{
             transition: all .2s ease-in-out;
             cursor: pointer;
         }
-        #sales-report-options > div > a > .card:hover{
+        #sales-report-options > div .card:hover{
             box-shadow: rgb(209, 209, 213) 0px 10px 15px;
+            border: 2px solid #42506b;
+        }
+        #sales-report-options > div h2{
+            color: #535353!important;
+        }
+        #sales-report-options > div.card:hover h2{
+            color: #42506b;
+        }
+        .card{
+            cursor: pointer;
+        }
+        a:hover{
+            text-decoration: none;
         }
     </style>
 {% endblock %}
@@ -18,43 +31,54 @@
     <div class="container-fluid">
        {% csrf_token %}
         <h3>Sales Reports</h3><hr/>
+        <p class="text-muted">Generate Sales Report For:</p>
         <div class="row mb-4 justify-content-center" id="sales-report-options">
            <!-- Today -->
-            <div class="col-md-4 col-sm-6">
+            <div class="col-sm-6">
                <a href="{% url 'app:sales_report_template' 'today' %}">
-                   <div class="card">
-                        <img src="{% static 'app/images/today.png' %}" alt="" class="card-img-top">
+                   <div class="card h-100">
+                        <div class="card-body">
+                            <h2 class="text-center">Today</h2>
+                        </div>
                     </div>
                </a>
             </div>
             <!-- Past 7 Days -->
-            <div class="col-md-4 col-sm-6 mt-3 mt-sm-0">
+            <div class="col-sm-6 mt-3 mt-sm-0">
                <a href="{% url 'app:sales_report_template' 'past-7-days' %}">
-                   <div class="card">
-                        <img src="{% static 'app/images/past_seven_days.png' %}" alt="" class="card-img-top">
-                    </div>
+                   <div class="card h-100">
+                       <div class="card-body">
+                           <h2 class="text-center">Past Seven Days</h2>
+                       </div>
+                   </div>
                </a>
             </div>
             <!-- Last Week -->
-            <div class="col-md-4 col-sm-6 mt-3 mt-md-0 ">
+            <div class="col-sm-6 mt-3 ">
                <a href="{% url 'app:sales_report_template' 'last-week' %}">
-                   <div class="card">
-                        <img src="{% static 'app/images/last_week.png' %}" alt="" class="card-img-top">
+                   <div class="card h-100">
+                        <div class="card-body">
+                            <h2 class="text-center">Last Week</h2>
+                        </div>
                     </div>
                </a>
             </div>
             <!-- Last Month -->
-            <div class="col-md-4 col-sm-6 mt-3">
+            <div class="col-sm-6 mt-3">
                <a href="{% url 'app:sales_report_template' 'last-month' %}">
-                   <div class="card">
-                        <img src="{% static 'app/images/last_month.png' %}" alt="" class="card-img-top">
+                   <div class="card h-100">
+                        <div class="card-body">
+                            <h2 class="text-center">Last Month</h2>
+                        </div>
                     </div>
                </a>
             </div>
             <!-- Custom -->
-            <div class="col-md-4 col-sm-6 mt-3">
-                <div class="card" id="custom">
-                    <img src="{% static 'app/images/custom.png' %}" alt="" class="card-img-top">
+            <div class="col-sm-6 mt-3">
+                <div class="card h-100" id="custom">
+                    <div class="card-body">
+                        <h2 class="text-center">Custom</h2>
+                    </div>
                 </div>
             </div>
         </div>
