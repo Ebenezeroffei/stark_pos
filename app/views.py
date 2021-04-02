@@ -28,12 +28,15 @@ class IndexView(generic.View):
         # stock = request.user.stockoverview
         try:
             user_stock = request.user.stockoverview
-            stock = {
-                'width':user_stock.stock_left/user_stock.stock,
-                'max': user_stock.stock,
-                'text': f"{user_stock.stock_left} of {user_stock.stock} left",
-                'value': user_stock.stock_left
-            }
+            if user_stock.stock_left() > 0:
+                stock = {
+                    'width':user_stock.stock_left()/user_stock.stock,
+                    'max': user_stock.stock,
+                    'text': f"{user_stock.stock_left()} of {user_stock.stock} left",
+                    'value': user_stock.stock_left()
+                }
+            else:
+                stock = False
         except StockOverview.DoesNotExist:
             stock = False
         context = {
@@ -94,10 +97,26 @@ class InventoryCreateView(LoginRequiredMixin,generic.CreateView):
         form.instance.company = self.request.user
         quantity = form.cleaned_data.get('quantity')
         name = form.cleaned_data.get('name')
-        stock = self.request.user.stockoverview
-        stock.stock += quantity
-        stock.save()
+        # Check if user's stock is being monitored
+        try:
+            stock = self.request.user.stockoverview
+            stock.stock += quantity # Increase it's quantity
+            stock.save()
+        except StockOverview.DoesNotExist:
+            # Start montoring user's stock
+            stock = StockOverview(
+                company = self.request.user,
+                stock = quantity
+            )
+            stock.save()
         form.save()
+        last_entered_product = Product.objects.last()
+        product_data = ProductData(
+            company = self.request.user,
+            product = last_entered_product
+        )
+        product_data.save()
+        # Create product data
         messages.success(self.request,f'{name} has been successfully added to your inventory')
         return HttpResponseRedirect(reverse('app:inventory'))
 

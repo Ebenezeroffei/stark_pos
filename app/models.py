@@ -55,7 +55,7 @@ class CompanyDetails(models.Model):
     """ This class stores all the details about a company """
     user = models.OneToOneField(User,on_delete = models.CASCADE)
     name = models.CharField(max_length = 100)
-    image = models.ImageField(upload_to = 'company_logo',default = 'company_logo.png')
+    image = models.ImageField(upload_to = 'company_logo',default = "company_logo.png")
     mobile1 = models.CharField(max_length = 30)
     mobile2 = models.CharField(max_length = 30, null = True, blank  = True)
     location = models.CharField(max_length = 200)
