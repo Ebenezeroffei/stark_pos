@@ -29,14 +29,14 @@ class Product(models.Model):
     unit_price = models.DecimalField(decimal_places = 2, max_digits = 65,default = 0.00)
     quantity = models.PositiveIntegerField(default = 1)
     unit = models.CharField(max_length = 100,choices = product_units,default = 'box')
-    image = models.ImageField(upload_to = f"product_images",default = 'default_product_logo.svg')
+    image = models.ImageField(upload_to = f"product_images",default = 'product_logo.png')
 
     def __str__(self):
         return f"{self.company.companydetails.name} - {self.name}"
 
     def save(self):
         super().save()
-        if self.image.url != '\media\default_product_logo.svg':
+        if self.image.url != '\media\product_logo.png':
             img = Image.open(self.image.path)
             img = img.resize((500,500))
             img.save(self.image.path)
@@ -44,7 +44,7 @@ class Product(models.Model):
     def delete(self):
         image = self.image
         super().delete()
-        if image.url != '/media/default_product_logo.svg':
+        if image.url != '/media/product_logo.png':
             os.remove(image.path)
 
     def get_absolute_url(self):
@@ -55,7 +55,7 @@ class CompanyDetails(models.Model):
     """ This class stores all the details about a company """
     user = models.OneToOneField(User,on_delete = models.CASCADE)
     name = models.CharField(max_length = 100)
-    image = models.ImageField(upload_to = 'company_logo',default = 'default_company_logo.svg')
+    image = models.ImageField(upload_to = 'company_logo',default = 'company_logo.png')
     mobile1 = models.CharField(max_length = 30)
     mobile2 = models.CharField(max_length = 30, null = True, blank  = True)
     location = models.CharField(max_length = 200)

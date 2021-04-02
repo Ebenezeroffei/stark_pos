@@ -17,9 +17,8 @@ class CompanyLoginView(LoginView):
     def get_success_url(self,*args,**kwargs):
         try:
             company = self.request.user.companydetails
-            return self.request.POST.get('next') if company else reverse('app:home')
+            return self.request.POST.get('next') if company and self.request.POST.get('next') else reverse('app:home')
         except CompanyDetails.DoesNotExist:
-            print("So i didnt get it")
             messages.success(self.request,"You have not being authorised to access this page")
             logout(self.request)
             return reverse('company:login')
