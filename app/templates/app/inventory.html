@@ -71,7 +71,7 @@
             {% endfor %}
         {% endif %}
         <div id="products" class="row">
-            <div class="col-6 col-sm-4 col-md-3">
+            <div class="col-6 col-sm-6 col-md-4 col-xl-3">
                 <div class="card">
                     <a href="{% url 'app:inventory_create' %}">
                         <div class="card-header">
@@ -84,7 +84,7 @@
                 </div>
             </div>
             {% for product in products %}
-                <div class="col-6 col-sm-4 col-md-3 mt-2">
+                <div class="col-6 col-sm-6 col-md-4 col-xl-3 mt-2">
                     <div class="card h-100">
                        <div class = 'options'>
                            <a href="{% url 'app:inventory_edit' product.pk %}">Edit</a>

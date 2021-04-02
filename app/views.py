@@ -78,6 +78,7 @@ class InventoryView(LoginRequiredMixin,generic.ListView):
         context = super().get_context_data(*args,**kwargs)
         total_inventory = sum([p.quantity for p in self.request.user.product_set.all()])
         context['total_inventory'] = total_inventory
+        context['products'] = Product.objects.filter(company = self.request.user)
         return context
 
 class InventoryDetailView(LoginRequiredMixin,generic.DetailView):
@@ -346,7 +347,9 @@ class AnalysisView(generic.View):
 
     @method_decorator(login_required)
     def dispatch(self,request,*args,**kwargs):
-        return render(request,self.template_name)
+        context = {}
+        context['data_available'] = True if request.user.productdata_set.all().count() > 0 and request.user.costrevenueanalysis_set.all().count() > 0 else False
+        return render(request,self.template_name,context)
 
 class GeneralAnalysisView(generic.View):
     """ This class provides all the information for making analysis """

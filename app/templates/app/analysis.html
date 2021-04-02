@@ -21,81 +21,90 @@
 {% block content %}
     <div class="container-fluid">
        {% csrf_token %}
-        <ul>
-           <!-- Product Analysis -->
-            <li>
-               <div style="background: white;">
-                    <div class="d-flex justify-content-between">
-                        <h3>Product Analysis</h3>
-                        <div>
-                            <a href="{% url 'app:custom_analysis' 'product' %}" class = 'btn btn-primary'>Generate Custom</a>
+       {% if data_available %}
+            <ul>
+            <!-- Product Analysis -->
+                <li>
+                <div style="background: white;">
+                        <div class="d-flex justify-content-between">
+                            <h3>Product Analysis</h3>
+                            <div>
+                                <a href="{% url 'app:custom_analysis' 'product' %}" class = 'btn btn-primary'>Generate Custom</a>
+                            </div>
                         </div>
+                        <hr/>
+                </div>
+                    <!-- Sales Made For The Past 7 Days -->
+                    <div class="card">
+                        <div class="card-header">Sales Made For The Past 7 Days</div>
+                        <canvas id="chart1" width="100%" height="40%"></canvas>
                     </div>
-                    <hr/>
-               </div>
-                <!-- Sales Made For The Past 7 Days -->
-                <div class="card">
-                    <div class="card-header">Sales Made For The Past 7 Days</div>
-                    <canvas id="chart1" width="100%" height="40%"></canvas>
-                </div>
-                <!-- Sales Made For The Last Month -->
-                <div class="card mt-3">
-                    <div class="card-header">Sales Made For The Last Month</div>
-                    <canvas id="chart2" width="100%" height="40%"></canvas>
-                </div>
-                <!-- Highest Item Sold For The Past 7 Days -->
-                <div class="card mt-3" style="position: relative;">
-                    <div class="card-header">Highest Item Sold For The Past 7 Days</div>
-                    <canvas id="chart3" width="100%" height="40%"></canvas>
-                    <div class="chartjs-tooltip text-light" id="tooltip-0" style="transition: all .2s ease-in-out;font-family:sans-serif;font-style: normal;font-size: 12px;padding: 5px;border-radius: 3px; background: rgba(0,0,0,.8);position: absolute;"></div>
-                </div>
-                <!-- Least Item Sold For The Past 7 Days -->
-                <div class="card mt-3">
-                    <div class="card-header">Least Item Sold For The Past 7 Days</div>
-                    <canvas id="chart4" width="100%" height="40%"></canvas>
-                    <div class="chartjs-tooltip text-light" id="tooltip-1" style="transition: all .2s ease-in-out;font-family:sans-serif;font-style: normal;font-size: 12px;padding: 5px;border-radius: 3px; background: rgba(0,0,0,.8);position: absolute;"></div>
-                </div>
-                <!-- Highest Item Sold For Last Month -->
-                <div class="card mt-3">
-                    <div class="card-header">Highest Item Sold For Last Month</div>
-                    <canvas id="chart5" width="100%" height="40%"></canvas>
-                    <div class="chartjs-tooltip text-light" id="tooltip-2" style="transition: all .2s ease-in-out;font-family:sans-serif;font-style: normal;font-size: 12px;padding: 5px;border-radius: 3px; background: rgba(0,0,0,.8);position: absolute;"></div>
-                </div>
-                <!-- Least Item Sold For Last Month -->
-                <div class="card mt-3">
-                    <div class="card-header">Least Item Sold For Last Month</div>
-                    <canvas id="chart6" width="100%" height="40%"></canvas>
-                    <div class="chartjs-tooltip text-light" id="tooltip-3" style="transition: all .2s ease-in-out;font-family:sans-serif;font-style: normal;font-size: 12px;padding: 5px;border-radius: 3px; background: rgba(0,0,0,.8);position: absolute;"></div>
-                </div>
-            </li>
-            <li>
-               <div style="background: white;">
-                    <div class="d-flex justify-content-between">
-                        <h3>Cost, Revenue And Profit Analysis</h3>
-                        <div>
-                            <a href="{% url 'app:custom_analysis' 'cost-revenue-profit' %}" class = 'btn btn-primary'>Generate Custom</a>
+                    <!-- Sales Made For The Last Month -->
+                    <div class="card mt-3">
+                        <div class="card-header">Sales Made For The Last Month</div>
+                        <canvas id="chart2" width="100%" height="40%"></canvas>
+                    </div>
+                    <!-- Highest Item Sold For The Past 7 Days -->
+                    <div class="card mt-3" style="position: relative;">
+                        <div class="card-header">Highest Item Sold For The Past 7 Days</div>
+                        <canvas id="chart3" width="100%" height="40%"></canvas>
+                        <div class="chartjs-tooltip text-light" id="tooltip-0" style="transition: all .2s ease-in-out;font-family:sans-serif;font-style: normal;font-size: 12px;padding: 5px;border-radius: 3px; background: rgba(0,0,0,.8);position: absolute;"></div>
+                    </div>
+                    <!-- Least Item Sold For The Past 7 Days -->
+                    <div class="card mt-3">
+                        <div class="card-header">Least Item Sold For The Past 7 Days</div>
+                        <canvas id="chart4" width="100%" height="40%"></canvas>
+                        <div class="chartjs-tooltip text-light" id="tooltip-1" style="transition: all .2s ease-in-out;font-family:sans-serif;font-style: normal;font-size: 12px;padding: 5px;border-radius: 3px; background: rgba(0,0,0,.8);position: absolute;"></div>
+                    </div>
+                    <!-- Highest Item Sold For Last Month -->
+                    <div class="card mt-3">
+                        <div class="card-header">Highest Item Sold For Last Month</div>
+                        <canvas id="chart5" width="100%" height="40%"></canvas>
+                        <div class="chartjs-tooltip text-light" id="tooltip-2" style="transition: all .2s ease-in-out;font-family:sans-serif;font-style: normal;font-size: 12px;padding: 5px;border-radius: 3px; background: rgba(0,0,0,.8);position: absolute;"></div>
+                    </div>
+                    <!-- Least Item Sold For Last Month -->
+                    <div class="card mt-3">
+                        <div class="card-header">Least Item Sold For Last Month</div>
+                        <canvas id="chart6" width="100%" height="40%"></canvas>
+                        <div class="chartjs-tooltip text-light" id="tooltip-3" style="transition: all .2s ease-in-out;font-family:sans-serif;font-style: normal;font-size: 12px;padding: 5px;border-radius: 3px; background: rgba(0,0,0,.8);position: absolute;"></div>
+                    </div>
+                </li>
+                <li>
+                <div style="background: white;">
+                        <div class="d-flex justify-content-between">
+                            <h3>Cost, Revenue And Profit Analysis</h3>
+                            <div>
+                                <a href="{% url 'app:custom_analysis' 'cost-revenue-profit' %}" class = 'btn btn-primary'>Generate Custom</a>
+                            </div>
                         </div>
+                        <hr/>
+                </div>
+                    <!-- Cost, Revenue and Profit For The Past Days -->
+                    <div class="card mt-3">
+                        <div class="card-header">Cost, Revenue And Profit For The Last 7 Days</div>
+                        <canvas id="chart7" width="100%" height="40%"></canvas>
                     </div>
-                    <hr/>
-               </div>
-                <!-- Cost, Revenue and Profit For The Past Days -->
-                <div class="card mt-3">
-                    <div class="card-header">Cost, Revenue And Profit For The Last 7 Days</div>
-                    <canvas id="chart7" width="100%" height="40%"></canvas>
-                </div>
-                <!-- Cost, Revenue and Profit For Last Month -->
-                <div class="card mt-3 mb-3">
-                    <div class="card-header">Cost, Revenue And Profit For Last Month</div>
-                    <canvas id="chart8" width="100%" height="40%"></canvas>
-                </div>
-            </li>
-        </ul>
+                    <!-- Cost, Revenue and Profit For Last Month -->
+                    <div class="card mt-3 mb-3">
+                        <div class="card-header">Cost, Revenue And Profit For Last Month</div>
+                        <canvas id="chart8" width="100%" height="40%"></canvas>
+                    </div>
+                </li>
+            </ul>
+        {% else %}
+            <h3>Dashboard</h3><hr/>
+            <h4 class="text-muted text-center">
+                Enough Data Hasn't Been Collected In Order For It To Be Analysed.
+            </h4>
+        {% endif %}
     </div>
 {% endblock %}
 {% block javascript %}
-    <script src="{% static 'app/Chart.bundle.min.js' %}"></script>
-    <script src="{% static 'app/analysis.js' %}"></script>
-    <script>
-        analysisInit("{% url 'app:general_analysis' %}",$('input[name = csrfmiddlewaretoken]').val());
-    </script>
+    {% if data_available %}
+        <script src="{% static 'app/Chart.bundle.min.js' %}"></script>
+        <script src="{% static 'app/analysis.js' %}"></script>
+        <script>
+                analysisInit("{% url 'app:general_analysis' %}",$('input[name = csrfmiddlewaretoken]').val());
+        </script>
+    {% endif %}
 {% endblock %}
