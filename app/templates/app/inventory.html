@@ -60,7 +60,15 @@
 {% block content %}
     <div class="container-fluid">
        {% csrf_token %}
-        <h3>Inventory <span class="badge badge-info">{{total_inventory}}</span></h3><hr/>
+        <!-- <h3 class="d-flex justify-content-between">
+            Inventory <span class="badge badge-info">{{total_inventory}}</span>
+        </h3><hr/> -->
+        <div class="d-flex justify-content-between">
+            <h3>Inventory <span class="badge badge-info">{{total_inventory}}</span></h3>
+            <div>
+                 <a id="new-inventory-create-url" href="{% url 'app:inventory_create' %}" class = 'btn btn-primary'> New Inventory</a>
+            </div>
+        </div><hr>
 		<!-- Inventory -->
         <div class="form-group">
             <input type="search" id="search-inventory" placeholder="Search Inventory" class="form-control">
@@ -71,7 +79,7 @@
             {% endfor %}
         {% endif %}
         <div id="products" class="row">
-            <div class="col-6 col-sm-6 col-md-4 col-xl-3">
+            <!-- <div class="col-6 col-sm-6 col-md-4 col-xl-3">
                 <div class="card">
                     <a href="{% url 'app:inventory_create' %}">
                         <div class="card-header">
@@ -82,7 +90,7 @@
                         </div>
                     </a>
                 </div>
-            </div>
+            </div> -->
             {% for product in products %}
                 <div class="col-6 col-sm-6 col-md-4 col-xl-3 mt-2">
                     <div class="card h-100">
@@ -97,10 +105,6 @@
                                 <p class="text-dark small m-auto">
                                    Quantity Left:
                                     <span class = 'text-primary'>{{ product.quantity }}</span>
-                                </p>
-                                <p class="text-dark small m-auto">
-                                   Unit Cost:
-                                    <span class = 'text-primary'>GH&#8373; {{product.unit_cost}}</span>
                                 </p>
                                 <p class="text-dark small m-auto">
                                    Unit Price:

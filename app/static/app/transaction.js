@@ -4,6 +4,7 @@ let transactionsInit = () => {
     $('#active').removeAttr('id');
     transactions.attr('id','active');
 }
+transactionsInit();
 
 // A function that calcultes the profit of a product
 let calculateProfit = () => {

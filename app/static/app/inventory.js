@@ -21,27 +21,27 @@ let searchInventory = (url,detailPath,editPath) => {
                 let products = data.products;
                 $('#products').prevAll('h4').remove();
                 if(products.length){
-                    $('#products').append(
-                        `<div class="col-6 col-sm-4 col-md-3">
-                            <div class="card">
-                                <a href="${data['create_inventory_url']}">
-                                    <div class="card-header">
-                                       Add New Product
-                                   </div>
-                                    <div class="card-body p-2 text-muted text-center" id="add-product">
-                                        +
-                                    </div>
-                                </a>
-                            </div>
-                        </div>`
-                    );
+                    // $('#products').append(
+                    //     `<div class="col-6 col-sm-4 col-md-3">
+                    //         <div class="card">
+                    //             <a href="${data['create_inventory_url']}">
+                    //                 <div class="card-header">
+                    //                    Add New Product
+                    //                </div>
+                    //                 <div class="card-body p-2 text-muted text-center" id="add-product">
+                    //                     +
+                    //                 </div>
+                    //             </a>
+                    //         </div>
+                    //     </div>`
+                    // );
                     for(product of products){
                         modifiedDetailPath = detailPath.split('/');
                         modifiedDetailPath[2] = String(product.id);
                         modifiedEditPath = editPath.split('/');
                         modifiedEditPath[2] = String(product.id);
                         $('#products').append(
-                            `<div class="col-6 col-sm-4 col-md-3 mt-2">
+                            `<div class="col-6 col-sm-6 col-md-4 col-xl-3 mt-2">
                                 <div class="card h-100">
                                     <div class = 'options'>
                                        <a href="${modifiedEditPath.join('/')}">Edit</a>
@@ -80,22 +80,11 @@ let searchInventory = (url,detailPath,editPath) => {
                     });
                 }
                 else{
+                    let newInventoryUrl = $('#new-inventory-create-url').attr('href');
                     $('#products').before(
-                        `<h4 class="text-center" style="color: #535353">No Results Found</h4>`
-                    );
-                    $('#products').append(
-                        `<div class="col-12">
-                            <div class="card">
-                                <a href="${data['create_inventory_url']}">
-                                    <div class="card-header">
-                                       Add New Product
-                                   </div>
-                                    <div class="card-body p-2 text-muted text-center" id="add-product">
-                                        +
-                                    </div>
-                                </a>
-                            </div>
-                        </div>`
+                        `<h4 class="text-center" style="color: #535353">No Results Found</h4>
+                        <a class='btn btn-primary d-block mt-3 m-auto' href='${newInventoryUrl}' style='max-width:400px'>Add Inventory</a>
+                        `
                     );
                 }
             },
@@ -270,7 +259,7 @@ let allGraphs = (el,data,labels,title,label,yAxesLabel = 'Quantity',customToolti
 // A function that gets called in the inventory create or update page
 let inventoryCreateUpdateInit = () => {
     // Add bootsrap styles
-    $('#id_name, #id_quantity, #id_unit_cost, #id_unit_price, #id_unit').attr('class','form-control')
+    $('#id_name, #id_quantity, #id_unit_price, #id_unit').attr('class','form-control')
 }
 
 // A function that updates it's relative preview
@@ -297,12 +286,6 @@ let updatePreview = () => {
     $('#id_quantity').keyup(function(){
         let value = $(this).val();
         value ? $("#qty").text(value) : $("#qty").text("1");
-    });
-
-    // Product Cost
-    $('#id_unit_cost').keyup(function(){
-        let value = $(this).val();
-        value ? $("#cost").html(numberFormat(value)) : $("#cost").html("GH&#8373; 0.00");
     });
 
     // Product Price

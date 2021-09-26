@@ -170,7 +170,7 @@
  <!-- Navbar which displays when the size of the screen becomes small -->
   <nav>
       <!-- Company Image -->
-      <img src="{{ user.company_details.image.url }}" style ='background: white;width: 50px;border-radius: 50%;height: 50px;border: 3px solid rgba(0,0,0,.2);' alt="">
+      <img src="{{ user.companydetails.image.url }}" style ='background: white;width: 50px;border-radius: 50%;height: 50px;border: 3px solid rgba(0,0,0,.2);' alt="">
        <!-- Company Name -->
        <h5 style="font-weight: 400;display: inline-block;margin-left: 10px;">{{ user.companydetails.name }}</h5>
   </nav>
@@ -190,9 +190,9 @@
               <img src="{% static 'app/images/inventory.svg' %}" style="width: 25px;position: relative;bottom:4px" alt="">
                <span>Inventory</span>
             </a></li>
-            <li><a href="{% url 'app:transactions' %}">
+            <li><a href="{% url 'app:staffs' %}">
               <img src="{% static 'app/images/transaction.svg' %}" style="width: 25px;position: relative;bottom:4px" alt="">
-               <span>Transactions</span>
+               <span>Staffs</span>
             </a></li>
            <li><a href="{% url 'app:analysis' %}">
               <img src="{% static 'app/images/analysis.svg' %}" style="width: 25px;position: relative;bottom:4px" alt="">

@@ -9,26 +9,10 @@ from django.urls import reverse
 
 class Product(models.Model):
     """ This class stores all the details of a product """
-    product_units = [
-        ('glass','glass'),
-        ('bottle','bottle'),
-        ('gallon','gallon'),
-        ('box','box'),
-        ('tin','tin'),
-        ('carton','carton'),
-        ('sack','sack'),
-        ('bowl','bowl'),
-        ('pound','pound'),
-        ('kilo','kilo'),
-        ('bar','bar'),
-        ('packet','packet'),
-    ]
     company = models.ForeignKey(User,on_delete = models.CASCADE)
     name = models.CharField(max_length = 200)
-    unit_cost = models.DecimalField(decimal_places = 2, max_digits = 65,default = 0.00)
     unit_price = models.DecimalField(decimal_places = 2, max_digits = 65,default = 0.00)
     quantity = models.PositiveIntegerField(default = 1)
-    unit = models.CharField(max_length = 100,choices = product_units,default = 'box')
     image = models.ImageField(upload_to = f"product_images",default = 'product_logo.png')
 
     def __str__(self):
@@ -55,11 +39,10 @@ class CompanyDetails(models.Model):
     """ This class stores all the details about a company """
     user = models.OneToOneField(User,on_delete = models.CASCADE)
     name = models.CharField(max_length = 100)
-    image = models.ImageField(upload_to = 'company_logo',default = "company_logo.png")
+    image = models.ImageField(upload_to = 'company_logo',default = "default_company_logo.png")
     mobile1 = models.CharField(max_length = 30)
     mobile2 = models.CharField(max_length = 30, null = True, blank  = True)
     location = models.CharField(max_length = 200)
-    is_premium = models.BooleanField(default = False)
 
     def __str__(self):
         return f"{self.name}"
@@ -90,7 +73,6 @@ class StockOverview(models.Model):
 class CostRevenueAnalysis(models.Model):
     """ This class stores the total cost and total revernu made for each day """
     company = models.ForeignKey(User,on_delete = models.CASCADE)
-    total_cost = models.DecimalField(max_digits = 1000,decimal_places = 2,default = 0)
     total_revenue = models.DecimalField(max_digits = 1000,decimal_places = 2,default = 0)
     date = models.DateField(default = timezone.now)
 
@@ -144,3 +126,8 @@ class TransactionItem(models.Model):
 
     def __str__(self):
         return f"{self.transaction.company.companydetails.name} transaction {self.transaction.id} item"
+
+
+class Staff(models.Model):
+    company = models.ForeignKey(User,on_delete=models.CASCADE)
+

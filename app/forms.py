@@ -6,7 +6,7 @@ class ProductForm(forms.ModelForm):
 
     class Meta:
         model = Product
-        fields = ['name','quantity','unit_price','unit_cost','unit','image']
+        fields = ['name','quantity','unit_price','image']
         widgets = {
             'name': forms.TextInput(attrs = {
                 'class': 'form-control'
@@ -14,13 +14,7 @@ class ProductForm(forms.ModelForm):
             'unit_price': forms.NumberInput(attrs = {
                 'class': 'form-control'
             }),
-            'unit_cost': forms.NumberInput(attrs = {
-                'class': 'form-control'
-            }),
             'quantity': forms.NumberInput(attrs = {
-                'class': 'form-control'
-            }),
-            'unit': forms.Select(attrs = {
                 'class': 'form-control'
             })
         }

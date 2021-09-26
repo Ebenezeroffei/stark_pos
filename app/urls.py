@@ -15,6 +15,7 @@ urlpatterns = [
     path('inventory/delete/',app_views.InventoryDeleteView.as_view(),name = 'inventory_delete'),
     path('transactions/',app_views.TransactionsView.as_view(),name = 'transactions'),
     path('transaction/create/',app_views.TransactionCreateView.as_view(),name = 'transaction_create'),
+    path('staffs/',app_views.StaffsView.as_view(),name = 'staffs'),
     path('product/search/',app_views.SearchProductView.as_view(),name = 'search_product'),
     path('transaction/save/',app_views.SaveTransactionView.as_view(),name = 'transaction_save'),
     path('analysis/',app_views.AnalysisView.as_view(),name = 'analysis'),

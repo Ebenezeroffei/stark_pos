@@ -39,18 +39,6 @@
                                 {{form.quantity.label_tag}}
                                 {{form.quantity}}
                             </div>
-                            <!-- Product Unit -->
-<!--
-                            <div class="form-group">
-                                {{form.unit.label_tag}}
-                                {{form.unit}}
-                            </div>
--->
-                            <!-- Product Unit Cost -->
-                            <div class="form-group">
-                                {{form.unit_cost.label_tag}}
-                                {{form.unit_cost}}
-                            </div>
                             <!-- Product Unit Price -->
                             <div class="form-group">
                                 {{form.unit_price.label_tag}}
@@ -89,36 +77,32 @@
                             <img height="300px" src="{% static 'app/images/product_logo.png' %}" id="image" class="card-img-top" alt="">
                         {% endif %}
                         <div class="card-body p-2">
-                               {% if update %}
-                                    <h6 class="text-dark" style="text-overflow: ellipsis;width: 100%;white-space: nowrap;overflow: hidden;" id="name">{{ object.name }}</h6>
-                                    <p class="text-dark small m-auto">
-                                       Quantity Left:
-                                        <span class = 'text-primary' id="qty">{{ object.quantity }}</span>
-                                    </p>
-                                    <p class="text-dark small m-auto">
-                                       Unit Cost:
-                                        <span class = 'text-primary' id="cost">GH&#8373; {{object.unit_cost}}</span>
-                                    </p>
-                                    <p class="text-dark small m-auto">
-                                       Unit Price:
-                                        <span class = 'text-primary' id="price">GH&#8373; {{ object.unit_price }}</span>
-                                    </p>
-                               {% else %}
-                                    <h6 class="text-dark" style="text-overflow: ellipsis;width: 100%;white-space: nowrap;overflow: hidden;" id="name">Product Name</h6>
-                                    <p class="text-dark small m-auto">
-                                       Quantity Left:
-                                        <span class = 'text-primary' id="qty">1</span>
-                                    </p>
-                                    <p class="text-dark small m-auto">
-                                       Unit Cost:
-                                        <span class = 'text-primary' id="cost">GH&#8373; 0.00</span>
-                                    </p>
-                                    <p class="text-dark small m-auto">
-                                       Unit Price:
-                                        <span class = 'text-primary' id="price">GH&#8373; 0.00</span>
-                                    </p>
-                                {% endif %}
-                            </div>
+                            {% if update %}
+                                <h6 class="text-dark" style="text-overflow: ellipsis;width: 100%;white-space: nowrap;overflow: hidden;" id="name">{{ object.name }}</h6>
+                                <p class="text-dark small m-auto">
+                                    Quantity Left:
+                                    <span class = 'text-primary' id="qty">{{ object.quantity }}</span>
+                                </p>
+                                <p class="text-dark small m-auto">
+                                    Unit Price:
+                                    <span class = 'text-primary' id="price">GH&#8373; {{ object.unit_price }}</span>
+                                </p>
+                            {% else %}
+                                <h6 class="text-dark" style="text-overflow: ellipsis;width: 100%;white-space: nowrap;overflow: hidden;" id="name">Product Name</h6>
+                                <p class="text-dark small m-auto">
+                                    Quantity Left:
+                                    <span class = 'text-primary' id="qty">1</span>
+                                </p>
+                                <p class="text-dark small m-auto">
+                                    Unit Cost:
+                                    <span class = 'text-primary' id="cost">GH&#8373; 0.00</span>
+                                </p>
+                                <p class="text-dark small m-auto">
+                                    Unit Price:
+                                    <span class = 'text-primary' id="price">GH&#8373; 0.00</span>
+                                </p>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>

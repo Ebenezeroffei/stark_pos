@@ -9,7 +9,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
 from django.urls import reverse
 from django.contrib import messages
-from .models import Product,Transaction,StockOverview,CostRevenueAnalysis,ProductData
+from .models import Product,Transaction,StockOverview,CostRevenueAnalysis,ProductData,Staff
 from . import utils
 
 
@@ -24,7 +24,7 @@ class IndexView(generic.View):
     @method_decorator(login_required)
     def dispatch(self,request,*args,**kwargs):
         todays_date = date.today()
-        transaction = request.user.transaction_set.filter(date = todays_date)[:10]
+        transactions = request.user.transaction_set.filter(date = todays_date)[:10]
         # stock = request.user.stockoverview
         try:
             user_stock = request.user.stockoverview
@@ -40,7 +40,7 @@ class IndexView(generic.View):
         except StockOverview.DoesNotExist:
             stock = False
         context = {
-            'transactions': transaction,
+            'transactions': transactions,
             'stock':stock
         }
         reset_data = utils.reset_data(request.user,CostRevenueAnalysis,StockOverview)
@@ -90,7 +90,7 @@ class InventoryDetailView(LoginRequiredMixin,generic.DetailView):
 class InventoryCreateView(LoginRequiredMixin,generic.CreateView):
     """ This class displays a class that creates a product """
     model = Product
-    fields = ['name','quantity','unit_cost','unit_price','image']
+    fields = ['name','quantity','unit_price','image']
     template_name = 'app/inventory_form.html'
 
     def form_valid(self,form):
@@ -124,7 +124,7 @@ class InventoryCreateView(LoginRequiredMixin,generic.CreateView):
 class InventoryEditView(LoginRequiredMixin,generic.UpdateView):
     """ This class displays a class that edits a product """
     model = Product
-    fields = ['name','quantity','unit_cost','unit_price','image']
+    fields = ['name','quantity','unit_price','image']
     template_name = 'app/inventory_form.html'
 
     def get_context_data(self,*args,**kwargs):
@@ -153,13 +153,13 @@ class InventorySearchView(generic.View):
         query = request.POST.get('q').strip()
         if query:
             products = [
-                {'image':p.image.url,'name':p.name,'price':p.unit_price,'cost':p.unit_cost,'qty':p.quantity,'id':p.id}
+                {'image':p.image.url,'name':p.name,'price':p.unit_price,'qty':p.quantity,'id':p.id}
                 for p in request.user.product_set.filter(name__icontains = query)
             ]
         else:
             print("Nothing")
             products = [
-                {'image':p.image.url,'name':p.name,'price':p.unit_price,'cost':p.unit_cost,'qty':p.quantity,'id':p.id}
+                {'image':p.image.url,'name':p.name,'price':p.unit_price,'qty':p.quantity,'id':p.id}
                 for p in request.user.product_set.all()
             ]
         print(products)
@@ -245,6 +245,14 @@ class InventoryDeleteView(generic.View):
         return JsonResponse(data)
 
 
+# Staffs
+class StaffsView(LoginRequiredMixin,generic.ListView):
+    context_object_name = 'staffs'
+    template_name = 'app/staffs.html'
+
+    def get_queryset(self):
+        return Staff.objects.filter(company = self.request.user)
+
 # Transaction
 class TransactionsView(LoginRequiredMixin,generic.ListView):
     """ This class shows all the transactions """
@@ -292,7 +300,6 @@ class SaveTransactionView(generic.View):
         total = float(request.POST.get('total'));
         product_names = list(filter(lambda x: x!='',request.POST.get('productNames').split(',')));
         product_qty = list(filter(lambda x: x!='',request.POST.get('productQty').split(',')));
-        total_cost = 0;
         total_products_sold = 0
         data = {}
         try:
@@ -321,10 +328,8 @@ class SaveTransactionView(generic.View):
                     product_data.save()
                 # Increase the total cost and total number of products gotten from the transaction
                 total_products_sold += int(product_qty[num])
-                total_cost += int(product_qty[num]) * prod.unit_cost
             # Modify the cost and revenue made for the day
             cost_revenue_analysis = get_object_or_404(CostRevenueAnalysis,company = request.user,date = date.today())
-            cost_revenue_analysis.total_cost += cost_revenue_analysis.total_cost.from_float(float(total_cost))
             cost_revenue_analysis.total_revenue += cost_revenue_analysis.total_revenue.from_float(float(total))
             cost_revenue_analysis.save()
             # Modify the stock overview for the day

@@ -28,26 +28,6 @@
            </div>
         </div>
         <hr/>
-        <!-- Total Cost, Total Revenue and Profit -->
-        <div class="card">
-            <div class="card-header">Cost Revenue Analysis For Today</div>
-            <div class="card-body p-2">
-                <div class="row ml-0 mr-0" id="growth">
-                   <div class="col mt-2">
-                        <h5 class = 'text-muted mt-1'>Total Revenue</h5>
-                        <p style="font-size:30px" class = 'text-info' id="revenue">GH&#8373; {{ user.costrevenueanalysis_set.first.total_revenue }}</p>
-                    </div>
-                    <div class="col mt-2">
-                        <h5 class = 'text-muted mt-1' >Total Cost</h5>
-                        <p style="font-size:30px" class = 'text-danger' id="cost">GH&#8373; {{ user.costrevenueanalysis_set.first.total_cost }}</p>
-                    </div>
-                    <div class="col mt-2">
-                        <h5 class = 'text-muted mt-1' >Profit</h5>
-                        <p style="font-size:30px" class = 'text-success' id="profit">GH&#8373; {{user.costrevenueanalysis_set.first.profit}}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
         <!-- Recent Transactions For Today -->
         <div class="card mt-3 mb-3">
             <div class="card-header">Transactions For Today <span class="badge badge-dark">{{total_transaction_for_today}}</span></div>
@@ -89,6 +69,11 @@
                         <hr class = 'bg-dark'/>
                         <p class = 'mt-2 mb-0 text-secondary'>Total: <span class = 'text-primary'>GH&#8373; {{transaction.total}}</span></p>
                     </li>
+                {% empty %}
+                    <h3 class="text-center text-muted my-5">
+                        No Transactions Has Been Recorded For Today. <br>
+                        <a href = "{% url 'app:transaction_create' %}" style="max-width: 500px;margin: auto;" class = 'd-block mt-3 btn btn-primary'> New Transaction </a>
+                    </h3>
                {% endfor %}
             </ul>
         </div>

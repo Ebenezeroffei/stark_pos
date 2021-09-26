@@ -2,3 +2,7 @@ Main_App:
     - Create the product data to monitor transactions when a product is created
     - Users can download their sales report
     - Redesign the saled report section
+    - Create staff model to 
+    - Move transactions from admin page
+    - Add staff page to admin page that will monitor all staffs
+    - Change the transaction image
