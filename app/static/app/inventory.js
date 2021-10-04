@@ -21,20 +21,6 @@ let searchInventory = (url,detailPath,editPath) => {
                 let products = data.products;
                 $('#products').prevAll('h4').remove();
                 if(products.length){
-                    // $('#products').append(
-                    //     `<div class="col-6 col-sm-4 col-md-3">
-                    //         <div class="card">
-                    //             <a href="${data['create_inventory_url']}">
-                    //                 <div class="card-header">
-                    //                    Add New Product
-                    //                </div>
-                    //                 <div class="card-body p-2 text-muted text-center" id="add-product">
-                    //                     +
-                    //                 </div>
-                    //             </a>
-                    //         </div>
-                    //     </div>`
-                    // );
                     for(product of products){
                         modifiedDetailPath = detailPath.split('/');
                         modifiedDetailPath[2] = String(product.id);
@@ -83,8 +69,7 @@ let searchInventory = (url,detailPath,editPath) => {
                     let newInventoryUrl = $('#new-inventory-create-url').attr('href');
                     $('#products').before(
                         `<h4 class="text-center" style="color: #535353">No Results Found</h4>
-                        <a class='btn btn-primary d-block mt-3 m-auto' href='${newInventoryUrl}' style='max-width:400px'>Add Inventory</a>
-                        `
+                        <a class='btn btn-primary d-block mt-3 m-auto' href='${newInventoryUrl}' style='max-width:400px'>Add Inventory</a>`
                     );
                 }
             },

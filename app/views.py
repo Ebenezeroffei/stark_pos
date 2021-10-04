@@ -9,6 +9,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
 from django.urls import reverse
 from django.contrib import messages
+from django.contrib.auth.models import User
 from .models import Product,Transaction,StockOverview,CostRevenueAnalysis,ProductData,Staff
 from . import utils
 
@@ -246,12 +247,45 @@ class InventoryDeleteView(generic.View):
 
 
 # Staffs
-class StaffsView(LoginRequiredMixin,generic.ListView):
+class StaffsListView(LoginRequiredMixin,generic.ListView):
+    model = Staff
     context_object_name = 'staffs'
     template_name = 'app/staffs.html'
 
     def get_queryset(self):
-        return Staff.objects.filter(company = self.request.user)
+        return Staff.objects.filter(company = self.request.user.companydetails)
+
+
+
+class StaffAddView(LoginRequiredMixin,generic.View):
+    def post(self,request):
+        # Get info
+        company = request.user.companydetails
+        first_name = request.POST.get('firstName')
+        last_name = request.POST.get('lastName')
+        password = request.POST.get('password')
+        # Generate username
+        username = f"{first_name[0].lower()}{last_name.replace(' ','').lower()}"
+        # # Number of different username
+        usernameCount = User.objects.filter(username__contains = username)
+        username += str(usernameCount.count() + 1)
+        password = request.POST.get('password')
+        print(password)
+        # user = User(username = username,password = password)
+        # user.save()
+        # staff = Staff(user = user, company = company)
+        # staff.save()
+
+        return JsonResponse({'status':'success','username':username})
+
+
+class StaffDeleteView(LoginRequiredMixin,generic.View):
+    def post(self,request):
+        # staff_id = request.POST.get('staffId')
+        # staff = User.objects.get(id = staff_id)
+        # staff.delete()
+        return JsonResponse({'status':'success'})
+
 
 # Transaction
 class TransactionsView(LoginRequiredMixin,generic.ListView):

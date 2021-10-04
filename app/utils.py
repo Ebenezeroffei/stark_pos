@@ -502,3 +502,4 @@ def custom_sales_report(user,model,total_months,start_from):
         custom_data[key]['total'] = sum(value.values())
 #    print(custom_data)
     return custom_data
+

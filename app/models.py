@@ -129,5 +129,6 @@ class TransactionItem(models.Model):
 
 
 class Staff(models.Model):
-    company = models.ForeignKey(User,on_delete=models.CASCADE)
+    user = models.OneToOneField(User,on_delete=models.CASCADE,default = None,null=True)
+    company = models.ForeignKey(CompanyDetails,on_delete=models.CASCADE)
 

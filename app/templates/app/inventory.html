@@ -60,9 +60,6 @@
 {% block content %}
     <div class="container-fluid">
        {% csrf_token %}
-        <!-- <h3 class="d-flex justify-content-between">
-            Inventory <span class="badge badge-info">{{total_inventory}}</span>
-        </h3><hr/> -->
         <div class="d-flex justify-content-between">
             <h3>Inventory <span class="badge badge-info">{{total_inventory}}</span></h3>
             <div>
@@ -79,18 +76,6 @@
             {% endfor %}
         {% endif %}
         <div id="products" class="row">
-            <!-- <div class="col-6 col-sm-6 col-md-4 col-xl-3">
-                <div class="card">
-                    <a href="{% url 'app:inventory_create' %}">
-                        <div class="card-header">
-                           Add New Product
-                       </div>
-                        <div class="card-body p-2 text-muted text-center" id="add-product">
-                            +
-                        </div>
-                    </a>
-                </div>
-            </div> -->
             {% for product in products %}
                 <div class="col-6 col-sm-6 col-md-4 col-xl-3 mt-2">
                     <div class="card h-100">
