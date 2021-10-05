@@ -75,32 +75,39 @@
                 <p class="alert alert-success">{{ message }}</p>
             {% endfor %}
         {% endif %}
-        <div id="products" class="row">
-            {% for product in products %}
-                <div class="col-6 col-sm-6 col-md-4 col-xl-3 mt-2">
-                    <div class="card h-100">
-                       <div class = 'options'>
-                           <a href="{% url 'app:inventory_edit' product.pk %}">Edit</a>
-                           <span id="{{product.id}}" class="delete-product">Delete</span>
-                       </div>
-                        <a href="{% url 'app:inventory_detail' product.pk %}">
-                            <img src="{{ product.image.url }}" height="250px" class="card-img-top" alt="">
-                            <div class="card-body p-2">
-                                <h6 class="text-dark" style="text-overflow: ellipsis;width: 100%;white-space: nowrap;overflow: hidden;">{{ product.name }}</h6>
-                                <p class="text-dark small m-auto">
-                                   Quantity Left:
-                                    <span class = 'text-primary'>{{ product.quantity }}</span>
-                                </p>
-                                <p class="text-dark small m-auto">
-                                   Unit Price:
-                                    <span class = 'text-primary'>GH&#8373; {{ product.unit_price }}</span>
-                                </p>
-                            </div>
-                        </a>
+        {% if products %}
+            <div id="products" class="row">
+                {% for product in products %}
+                    <div class="col-6 col-sm-6 col-md-4 col-xl-3 mt-2">
+                        <div class="card h-100">
+                        <div class = 'options'>
+                            <a href="{% url 'app:inventory_edit' product.pk %}">Edit</a>
+                            <span id="{{product.id}}" class="delete-product">Delete</span>
+                        </div>
+                            <a href="{% url 'app:inventory_detail' product.pk %}">
+                                <img src="{{ product.image.url }}" height="250px" class="card-img-top" alt="">
+                                <div class="card-body p-2">
+                                    <h6 class="text-dark" style="text-overflow: ellipsis;width: 100%;white-space: nowrap;overflow: hidden;">{{ product.name }}</h6>
+                                    <p class="text-dark small m-auto">
+                                    Quantity Left:
+                                        <span class = 'text-primary'>{{ product.quantity }}</span>
+                                    </p>
+                                    <p class="text-dark small m-auto">
+                                    Unit Price:
+                                        <span class = 'text-primary'>GH&#8373; {{ product.unit_price }}</span>
+                                    </p>
+                                </div>
+                            </a>
+                        </div>
                     </div>
-                </div>
-            {% endfor %}
-        </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div>
+                <h3 class="text-muted text-center">You haven't added any product.</h3>
+                <a href="{% url 'app:inventory_create' %}" style="width: 300px;margin: 20px auto;display: block;" class="btn btn-primary">New Staff</a>
+            </div>
+        {% endif %}
         <!-- Modal For Deleting A Product -->
         <div class="modal fade" id="deleteProduct" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="deleteProductLabel" aria-hidden="true">
           <div class="modal-dialog">

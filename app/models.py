@@ -132,3 +132,6 @@ class Staff(models.Model):
     user = models.OneToOneField(User,on_delete=models.CASCADE,default = None,null=True)
     company = models.ForeignKey(CompanyDetails,on_delete=models.CASCADE)
 
+    def __str__(self) -> str:
+        return f"{self.company.name} staff {self.id}"
+

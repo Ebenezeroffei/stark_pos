@@ -58,7 +58,7 @@
                 </div>
                 <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" id="cancel-staff-delete" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" data-staff-delete-url="{% url 'app:staff_delete' %}" id="delete-staff">Delete</button>
+                <button type="button" class="btn btn-danger" data-staff-delete-url="{% url 'app:staff_delete' %}" id="delete-staff">Delete</button>
                 </div>
             </div>
         </div>
@@ -69,28 +69,39 @@
         <div class="d-flex justify-content-between">
             <h3>Staffs <span class="badge badge-info">{{staffs.count}}</span></h3>
             <div>
-                 <a href = "{% url 'app:transaction_create' %}" data-toggle="modal" data-target="#addStaffModal" class = 'btn btn-primary'> New Staff </a>
+                 <a href = "" data-toggle="modal" data-target="#addStaffModal" class = 'btn btn-primary'> New Staff </a>
             </div>
         </div><hr>
         <!-- Staffs -->
         <div class="mt-3" id="staffs">
-            <div class="row">
-                <div class="col-6 col-md-4 col-lg-3 col-xl-2">
-                    <div class="card shadow-sm p-2">
-                        <!-- Name -->
-                        <p class="small text-muted m-0">Name</p>
-                        <p class="lead"><strong>Stark</strong></p>
-                        <!-- Username -->
-                        <p class="small text-muted m-0">Username</p>
-                        <p class="lead"><strong>eoffei</strong></p>
-                        <!-- Password -->
-                        <p class="small text-muted m-0">Password</p>
-                        <p class="lead"><strong>**********</strong></p>
-                        <!-- Options -->
-                        <button class="btn btn-danger delete-staff-attempt" data-toggle="modal" data-target="#deleteStaffModal" id="student-1">Delete</button>
-                    </div>
+            {% if staffs %}
+                <div class="row">
+                    {% for staff in staffs %}
+                        <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-body">
+                                    <!-- Name -->
+                                    <p class="small text-muted m-0">Name</p>
+                                    <p class="lead"><strong>{{ staff.user.first_name }}</strong></p>
+                                    <!-- Username -->
+                                    <p class="small text-muted m-0">Username</p>
+                                    <p class="lead"><strong>{{ staff.user.username }}</strong></p>
+                                    <!-- Password -->
+                                    <p class="small text-muted m-0">Password</p>
+                                    <p class="lead"><strong>**********</strong></p>
+                                    <!-- Options -->
+                                    <button style="width: 100%;" class="btn btn-danger delete-staff-attempt" data-toggle="modal" data-target="#deleteStaffModal" id="staff-{{ staff.user.id }}">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
                 </div>
-            </div>
+            {% else %}
+                <div>
+                    <h3 class="text-muted text-center">You haven't added any staff.</h3>
+                    <a href="#" data-toggle="modal" data-target="#addStaffModal" style="width: 300px;margin: 20px auto;display: block;" class="btn btn-primary">New Staff</a>
+                </div>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

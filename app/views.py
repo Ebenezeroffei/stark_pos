@@ -270,20 +270,19 @@ class StaffAddView(LoginRequiredMixin,generic.View):
         usernameCount = User.objects.filter(username__contains = username)
         username += str(usernameCount.count() + 1)
         password = request.POST.get('password')
-        print(password)
-        # user = User(username = username,password = password)
-        # user.save()
-        # staff = Staff(user = user, company = company)
-        # staff.save()
+        user = User(username = username,password = password,first_name = first_name,last_name=last_name)
+        user.save()
+        staff = Staff(user = user, company = company)
+        staff.save()
 
-        return JsonResponse({'status':'success','username':username})
+        return JsonResponse({'status':'success','username':username,'staffId':user.id})
 
 
 class StaffDeleteView(LoginRequiredMixin,generic.View):
     def post(self,request):
-        # staff_id = request.POST.get('staffId')
-        # staff = User.objects.get(id = staff_id)
-        # staff.delete()
+        staff_id = int(request.POST.get('staffId'))
+        staff = User.objects.get(id = staff_id)
+        staff.delete()
         return JsonResponse({'status':'success'})
 
 
