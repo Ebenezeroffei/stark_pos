@@ -5,12 +5,6 @@
 {% block head %}
     <title>Transactions</title>
     <style>
-/*
-        #growth{
-            box-shadow: 0px 2px 5px rgba(0,0,0,.4);
-            border-radius: 5px;
-        }
-*/
         /* Media query from 0 - 770px */
         @media only screen and (max-width:770px){
             .transaction-total{
@@ -72,7 +66,7 @@
                 {% empty %}
                     <h3 class="text-center text-muted my-5">
                         No Transactions Has Been Recorded For Today. <br>
-                        <a href = "{% url 'app:transaction_create' %}" style="max-width: 500px;margin: auto;" class = 'd-block mt-3 btn btn-primary'> New Transaction </a>
+                        <a href = "{% url 'app:transaction_create' %}" style="max-width: 300px;margin: auto;" class = 'd-block mt-3 btn btn-primary'> New Transaction </a>
                     </h3>
                {% endfor %}
             </ul>

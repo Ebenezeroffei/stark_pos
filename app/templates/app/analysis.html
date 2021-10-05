@@ -100,11 +100,15 @@
     </div>
 {% endblock %}
 {% block javascript %}
+    <script src="{% static 'app/Chart.bundle.min.js' %}"></script>
+    <script src="{% static 'app/analysis.js' %}"></script>
     {% if data_available %}
-        <script src="{% static 'app/Chart.bundle.min.js' %}"></script>
-        <script src="{% static 'app/analysis.js' %}"></script>
         <script>
                 analysisInit("{% url 'app:general_analysis' %}",$('input[name = csrfmiddlewaretoken]').val());
+        </script>
+    {% else %}
+        <script>
+            analysisInit();
         </script>
     {% endif %}
 {% endblock %}

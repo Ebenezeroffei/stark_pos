@@ -1,52 +1,55 @@
-let analysisInit = (url,csrfmiddlewaretoken) => {
+let analysisInit = (url = null,csrfmiddlewaretoken = null) => {
     let analysis = $('#active').parents('ul').find('li').eq(3).find('a');
-    // Make the transactions section be active
+    // Make the analysis section be active
     $('#active').removeAttr('id');
     analysis.attr('id','active');
-    // Start the loader
-    $('#loader').css('display','block');
-    $('body').css('overflow','hidden');
-    $.post(
-        url,
-        {
-            csrfmiddlewaretoken
-        },
-        function(data){
-            // Sop the loader
-            $('#loader').css('display','none');
-            $('body').css('overflow','auto');
-//            console.log(data);
-            // Modify the card headers containing the graph
-//            $('#chart2, #chart5, #chart6').parents('div.card').find('div.card-header').text()
-            // Product Analysis
+    if(url && csrfmiddlewaretoken){
 
-            // Sales Made For The Past 7 Days
-            allGraphs('chart1',data['sales_data_for_7_days'],data['days_of_the_week'],'Sales Made For The Past 7 Days','Quantity')
-
-            // Sales Made For Last Month
-            allGraphs('chart2',data['sales_data_for_last_month'],data['weeks'],`Sales Made For Last Month - ${data['past_month']}`,'Quantity')
-
-            // Highest Item Sold For The Past 7 Days
-            allGraphs('chart3',data['data_for_maximum_item_sold_last_7_days'],data['days_of_the_week'],'Highest Item Sold For The Past 7 Days','Quantity','Quantity',true,data['product_name_for_maximum_item_sold_last_7_days'],0)
-
-            // Least Item Sold For The Past 7 Days
-            allGraphs('chart4',data['data_for_minimum_item_sold_last_7_days'],data['days_of_the_week'],'Least Item Sold For The Past 7 Days','Quantity','Quantity',true,data['product_name_for_minimum_item_sold_last_7_days'],1)
-
-            // Highest Item Sold For Last Month
-            allGraphs('chart5',data['data_for_maximum_item_sold_last_month'],data['weeks'],`Highest Item Sold For Last Month - ${data['past_month']}`,'Quantity','Quantity',true,data['product_name_for_maximum_item_sold_last_month'],2)
-
-            // Least Item Sold For Last Month
-            allGraphs('chart6',data['data_for_minimum_item_sold_last_month'],data['weeks'],`Least Item Sold For Last Month - ${data['past_month']}`,'Quantity','Quantity',true,data['product_name_for_minimum_item_sold_last_month'],3)
-
-            // Cost, Revenue And Profit For The Past 7 Days
-            specialGraph('chart7',data['cost_for_the_past_7_days'],data['revenue_for_the_past_7_days'],data['profit_for_the_past_7_days'],data['days_of_the_week'],'Cost, Revenue And Profit For The Past 7 Days')
-
-            // Cost, Revenue And Profit For Last Month
-            specialGraph('chart8',data['cost_for_last_month'],data['revenue_for_last_month'],data['profit_for_last_month'],data['weeks'],'Cost, Revenue And Profit For Last Month')
-
-        },
-        'json'
-    );
+        // Start the loader
+        $('#loader').css('display','block');
+        $('body').css('overflow','hidden');
+        $.post(
+            url,
+            {
+                csrfmiddlewaretoken
+            },
+            function(data){
+                // Sop the loader
+                $('#loader').css('display','none');
+                $('body').css('overflow','auto');
+    //            console.log(data);
+                // Modify the card headers containing the graph
+    //            $('#chart2, #chart5, #chart6').parents('div.card').find('div.card-header').text()
+                // Product Analysis
+    
+                // Sales Made For The Past 7 Days
+                allGraphs('chart1',data['sales_data_for_7_days'],data['days_of_the_week'],'Sales Made For The Past 7 Days','Quantity')
+    
+                // Sales Made For Last Month
+                allGraphs('chart2',data['sales_data_for_last_month'],data['weeks'],`Sales Made For Last Month - ${data['past_month']}`,'Quantity')
+    
+                // Highest Item Sold For The Past 7 Days
+                allGraphs('chart3',data['data_for_maximum_item_sold_last_7_days'],data['days_of_the_week'],'Highest Item Sold For The Past 7 Days','Quantity','Quantity',true,data['product_name_for_maximum_item_sold_last_7_days'],0)
+    
+                // Least Item Sold For The Past 7 Days
+                allGraphs('chart4',data['data_for_minimum_item_sold_last_7_days'],data['days_of_the_week'],'Least Item Sold For The Past 7 Days','Quantity','Quantity',true,data['product_name_for_minimum_item_sold_last_7_days'],1)
+    
+                // Highest Item Sold For Last Month
+                allGraphs('chart5',data['data_for_maximum_item_sold_last_month'],data['weeks'],`Highest Item Sold For Last Month - ${data['past_month']}`,'Quantity','Quantity',true,data['product_name_for_maximum_item_sold_last_month'],2)
+    
+                // Least Item Sold For Last Month
+                allGraphs('chart6',data['data_for_minimum_item_sold_last_month'],data['weeks'],`Least Item Sold For Last Month - ${data['past_month']}`,'Quantity','Quantity',true,data['product_name_for_minimum_item_sold_last_month'],3)
+    
+                // Cost, Revenue And Profit For The Past 7 Days
+                specialGraph('chart7',data['cost_for_the_past_7_days'],data['revenue_for_the_past_7_days'],data['profit_for_the_past_7_days'],data['days_of_the_week'],'Cost, Revenue And Profit For The Past 7 Days')
+    
+                // Cost, Revenue And Profit For Last Month
+                specialGraph('chart8',data['cost_for_last_month'],data['revenue_for_last_month'],data['profit_for_last_month'],data['weeks'],'Cost, Revenue And Profit For Last Month')
+    
+            },
+            'json'
+        );
+    }
 }
 
 // A function that draws all the graphs needed for the analysis section

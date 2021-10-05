@@ -36,21 +36,18 @@
                 <p class="small alert alert-info">{{message}}</p>
             {% endfor %}
         {% endif %}
-       {% for error in form.non_field_errors %}
-                    <p class="alert alert-danger small">{{error}}</p>
-                {% endfor %}
-        {% for field in form %}
-            <div class="form-group">
-                {{field.label_tag}}
-                {{field}}
-            </div>
-        {% endfor %}
+        <!-- Username -->
+        <div class="form-group">
+            <label for="id_username">Username:</label>
+            <input type="text" name="username" required maxlength="150" class="form-control" id="id_username">
+        </div>
+        <!-- Password -->
+        <div class="form-group">
+            <label for="id_password">Password:</label>
+            <input type="password" name="password" id="id_password" class="form-control" required>
+        </div>
         <input type="submit" class = 'mt-5 mb-5 btn btn-block' value="Login">
     </form>
 {% endblock %}
 {% block javascript %}
-    <script>
-        // Add boostrap styles to the input fields
-        $('#id_username, #id_password').attr('class','form-control')
-    </script>
 {% endblock %}

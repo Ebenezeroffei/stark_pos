@@ -270,7 +270,7 @@ class StaffAddView(LoginRequiredMixin,generic.View):
         usernameCount = User.objects.filter(username__contains = username)
         username += str(usernameCount.count() + 1)
         password = request.POST.get('password')
-        user = User(username = username,password = password,first_name = first_name,last_name=last_name)
+        user = User(username=username,password=password,first_name=first_name,last_name=last_name)
         user.save()
         staff = Staff(user = user, company = company)
         staff.save()
@@ -287,10 +287,11 @@ class StaffDeleteView(LoginRequiredMixin,generic.View):
 
 
 # Transaction
+# Don't forget to add login required mixin
 class TransactionsView(LoginRequiredMixin,generic.ListView):
     """ This class shows all the transactions """
     context_object_name = 'transactions'
-    template_name = 'app/transaction.html'
+    template_name = 'app/custom_transactions.html'
 
     def get_queryset(self,*args,**kwargs):
         todays_date = date.today()
@@ -299,13 +300,12 @@ class TransactionsView(LoginRequiredMixin,generic.ListView):
     def get_context_data(self,*args,**kwargs):
         context = super().get_context_data(*args,**kwargs)
         todays_date = date.today()
-        context['total_transaction_for_today'] = len(self.request.user.transaction_set.filter(date = todays_date))
-#        print(context)
+        context['total_transaction_for_today'] = len(context['transactions'])
         return context
 
 class TransactionCreateView(generic.View):
     """ This page creates a transaction """
-    template_name = 'app/transaction_create.html'
+    template_name = 'app/custom_transaction_create.html'
 
     @method_decorator(login_required)
     def dispatch(self,request,*args,**kwargs):
@@ -330,8 +330,8 @@ class SaveTransactionView(generic.View):
 
     @method_decorator(login_required)
     def post(self,request,*args,**kwargs):
-        total = float(request.POST.get('total'));
-        product_names = list(filter(lambda x: x!='',request.POST.get('productNames').split(',')));
+        total = float(request.POST.get('total'))
+        product_names = list(filter(lambda x: x!='',request.POST.get('productNames').split(',')))
         product_qty = list(filter(lambda x: x!='',request.POST.get('productQty').split(',')));
         total_products_sold = 0
         data = {}
