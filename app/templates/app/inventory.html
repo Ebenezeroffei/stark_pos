@@ -102,10 +102,11 @@
                     </div>
                 {% endfor %}
             </div>
+            <div id="no-products"></div>
         {% else %}
-            <div>
+            <div id="no-products">
                 <h3 class="text-muted text-center">You haven't added any product.</h3>
-                <a href="{% url 'app:inventory_create' %}" style="width: 300px;margin: 20px auto;display: block;" class="btn btn-primary">New Staff</a>
+                <a href="{% url 'app:inventory_create' %}" style="width: 300px;margin: 20px auto;display: block;" class="btn btn-primary">New Product</a>
             </div>
         {% endif %}
         <!-- Modal For Deleting A Product -->

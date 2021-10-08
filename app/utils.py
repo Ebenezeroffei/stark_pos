@@ -3,25 +3,29 @@ from datetime import date,timedelta
 from django.shortcuts import get_object_or_404,get_list_or_404
 
 # A function that resets the stock overview and the cost , revenue analysis
-def reset_data(user,model1,model2):
+def reset_data(company,model1,model2):
     try:
         # Check if there cost,revenue for today has been created
         todays_date = date.today()
-        cost_rev = model1.objects.get(company = user,date = todays_date)
+        cost_rev = model1.objects.get(company = company,date = todays_date)
     except model1.DoesNotExist:
         # Create a new cost revenue analysis for today
-        cost_rev = model1(company = user,date = todays_date)
+        cost_rev = model1(company = company,date = todays_date)
         cost_rev.save()
         # Find the total number of stock for the
-        products = user.product_set.all()
+        products = company.product_set.all()
         quantity = 0
         for product in products:
             quantity += product.quantity
         # Find and update the stock overview for the company
-        stock_overview = get_object_or_404(model2,company = user)
-        stock_overview.stock = quantity
-        stock_overview.stock_sold = 0
-        stock_overview.save()
+        try: 
+            stock_overview = model2.objects.get(company = company)
+            stock_overview.stock = quantity
+            stock_overview.stock_sold = 0
+            stock_overview.save()
+        except model2.DoesNotExist:
+            stock_overview = model2(company = company,stock = quantity,stock_sold = 0)
+            stock_overview.save()
 
 
 def get_days():
@@ -42,7 +46,7 @@ def get_days():
 
 
 # Analysis
-def general_sales_made_for_last_month(user,model):
+def general_sales_made_for_last_month(company,model):
     general_sales_data_for_last_month = [0,0,0,0]
     todays_date = date.today()
     # Get the last date of the past month
@@ -52,7 +56,7 @@ def general_sales_made_for_last_month(user,model):
     for day in range(month_range - 1,-1,-1):
         quantity = 0 # Default quantity
         date_for_data = last_month_end - timedelta(days = day)
-        datas = model.objects.filter(date = date_for_data,company = user)
+        datas = model.objects.filter(date = date_for_data,company = company)
         for data in datas:
             quantity += data.quantity
         # Week 4
@@ -69,26 +73,26 @@ def general_sales_made_for_last_month(user,model):
             general_sales_data_for_last_month[0] += quantity
     return general_sales_data_for_last_month
 
-def general_sales_made_for_the_past_7_days(user):
+def general_sales_made_for_the_past_7_days(company):
     general_data_for_7_days = []
     for i in range(1,8): # Loop through 7 days of the week
         quantity = 0 # Default quantity
         date_for_data = date.today() - timedelta(days = i)
 #            print(date_for_data)
         # List of products on a particylar date
-        datas = user.productdata_set.filter(date = date_for_data)
+        datas = company.productdata_set.filter(date = date_for_data)
         for data in datas: # Loop through every product
             quantity += data.quantity # Increment
         general_data_for_7_days.append(quantity) # Quantity of goods sold on that day
     return general_data_for_7_days
 
-def maximum_item_sold_for_the_past_7_days(user,model):
+def maximum_item_sold_for_the_past_7_days(company,model):
     data_for_maximum_item_sold = [] # List to store all the information for further processing
     label_for_maximum_item_sold = []
     for i in range(1,8):
         date_for_data = date.today() - timedelta(days = i)
         try:
-            data = max(get_list_or_404(model,company = user,date = date_for_data),key = lambda x: x.quantity)
+            data = max(get_list_or_404(model,company = company,date = date_for_data),key = lambda x: x.quantity)
             data_for_maximum_item_sold.append(data.quantity)
             label_for_maximum_item_sold.append(data.product.name)
 #            print(data.product.name,data.quantity)
@@ -99,13 +103,13 @@ def maximum_item_sold_for_the_past_7_days(user,model):
     return data_for_maximum_item_sold,label_for_maximum_item_sold
 
 
-def minimum_item_sold_for_the_past_7_days(user,model):
+def minimum_item_sold_for_the_past_7_days(company,model):
     data_for_minimum_item_sold = [] # List to store all the information for further processing
     label_for_minimum_item_sold = []
     for i in range(1,8):
         date_for_data = date.today() - timedelta(days = i)
         try:
-            data = min(get_list_or_404(model,company = user,date = date_for_data),key = lambda x: x.quantity)
+            data = min(get_list_or_404(model,company = company,date = date_for_data),key = lambda x: x.quantity)
             data_for_minimum_item_sold.append(data.quantity)
             label_for_minimum_item_sold.append(data.product.name)
 #            print(data.product.name,data.quantity)
@@ -115,13 +119,13 @@ def minimum_item_sold_for_the_past_7_days(user,model):
 #            print(e)
     return data_for_minimum_item_sold,label_for_minimum_item_sold
 
-def maximum_item_sold_last_month(user,model):
+def maximum_item_sold_last_month(company,model):
     todays_date = date.today() # Get todays date
     # Get the last date for last mont
     last_month_end = todays_date - timedelta(days = todays_date.day)
     data_for_last_month = [0,0,0,0]
     labels_for_maximum_item_sold_last_month = []
-    products = {p.name:0 for p in user.product_set.all()} # Get all the company's products
+    products = {p.name:0 for p in company.product_set.all()} # Get all the company's products
 
 #    print(products)
     for i in range(1,5):
@@ -130,7 +134,7 @@ def maximum_item_sold_last_month(user,model):
             # Go through 7 days in the first week
             for day in range(23,last_month_end.day):
                 date_for_data = last_month_end - timedelta(days = day)
-                datas = model.objects.filter(company = user,date = date_for_data)
+                datas = model.objects.filter(company = company,date = date_for_data)
                 # Get data for each day of the week
                 for data in datas:
                     # Increase the quantity of items sold for that day
@@ -146,7 +150,7 @@ def maximum_item_sold_last_month(user,model):
         elif i == 2:
             for day in range(16,23):
                 date_for_data = last_month_end - timedelta(days = day)
-                datas = model.objects.filter(company = user,date = date_for_data)
+                datas = model.objects.filter(company = company,date = date_for_data)
                 for data in datas:
                     products[data.product.name] += data.quantity
             max_product = max(products,key = lambda x: products[x])
@@ -158,7 +162,7 @@ def maximum_item_sold_last_month(user,model):
         elif i == 3:
             for day in range(9,16):
                 date_for_data = last_month_end - timedelta(days = day)
-                datas = model.objects.filter(company = user,date = date_for_data)
+                datas = model.objects.filter(company = company,date = date_for_data)
                 for data in datas:
                     products[data.product.name] += data.quantity
             max_product = max(products,key = lambda x: products[x])
@@ -171,7 +175,7 @@ def maximum_item_sold_last_month(user,model):
             rem = (last_month_end.day % 7) + 7
             for day in range(rem):
                 date_for_data = last_month_end - timedelta(days = day)
-                datas = model.objects.filter(company = user,date = date_for_data)
+                datas = model.objects.filter(company = company,date = date_for_data)
                 for data in datas:
                     products[data.product.name] += data.quantity
             max_product = max(products,key = lambda x: products[x])
@@ -182,13 +186,13 @@ def maximum_item_sold_last_month(user,model):
     return data_for_last_month,labels_for_maximum_item_sold_last_month
 
 
-def minimum_item_sold_last_month(user,model):
+def minimum_item_sold_last_month(company,model):
     todays_date = date.today() # Get todays date
     # Get the last date for last mont
     last_month_end = todays_date - timedelta(days = todays_date.day)
     data_for_last_month = [0,0,0,0]
     labels_for_minimum_item_sold_last_month = []
-    products = {p.name:0 for p in user.product_set.all()} # Get all the company's products
+    products = {p.name:0 for p in company.product_set.all()} # Get all the company's products
 
 #    print(products)
     for i in range(1,5):
@@ -197,7 +201,7 @@ def minimum_item_sold_last_month(user,model):
             # Go through 7 days in the first week
             for day in range(23,last_month_end.day):
                 date_for_data = last_month_end - timedelta(days = day)
-                datas = model.objects.filter(company = user,date = date_for_data)
+                datas = model.objects.filter(company = company,date = date_for_data)
                 # Get data for each day of the week
                 for data in datas:
                     # Increase the quantity of items sold for that day
@@ -213,7 +217,7 @@ def minimum_item_sold_last_month(user,model):
         elif i == 2:
             for day in range(16,23):
                 date_for_data = last_month_end - timedelta(days = day)
-                datas = model.objects.filter(company = user,date = date_for_data)
+                datas = model.objects.filter(company = company,date = date_for_data)
                 for data in datas:
                     products[data.product.name] += data.quantity
             min_product = min(products,key = lambda x: products[x])
@@ -225,7 +229,7 @@ def minimum_item_sold_last_month(user,model):
         elif i == 3:
             for day in range(9,16):
                 date_for_data = last_month_end - timedelta(days = day)
-                datas = model.objects.filter(company = user,date = date_for_data)
+                datas = model.objects.filter(company = company,date = date_for_data)
                 for data in datas:
                     products[data.product.name] += data.quantity
             min_product = min(products,key = lambda x: products[x])
@@ -238,7 +242,7 @@ def minimum_item_sold_last_month(user,model):
             rem = (last_month_end.day % 7) + 7
             for day in range(rem):
                 date_for_data = last_month_end - timedelta(days = day)
-                datas = model.objects.filter(company = user,date = date_for_data)
+                datas = model.objects.filter(company = company,date = date_for_data)
                 for data in datas:
                     products[data.product.name] += data.quantity
             min_product = min(products,key = lambda x: products[x])
@@ -249,7 +253,7 @@ def minimum_item_sold_last_month(user,model):
     return data_for_last_month,labels_for_minimum_item_sold_last_month
 
 # A function that provides the cost,revenue and profit for the past 7 days
-def cost_revenue_and_profit_for_the_past_7_days(user,model):
+def cost_revenue_and_profit_for_the_past_7_days(company,model):
     # A dictionary to store data for the past 7 days
     data_for_past_7_days = {
         'cost': [],
@@ -263,7 +267,7 @@ def cost_revenue_and_profit_for_the_past_7_days(user,model):
         date_for_data = todays_date - timedelta(days = i)
         try:
             # Data for that day
-            data = model.objects.get(company = user,date = date_for_data)
+            data = model.objects.get(company = company,date = date_for_data)
             # Append data gotten for that day
             data_for_past_7_days['cost'].append(float(data.total_cost))
             data_for_past_7_days['revenue'].append(float(data.total_revenue))
@@ -280,7 +284,7 @@ def cost_revenue_and_profit_for_the_past_7_days(user,model):
 
 
 # A function that provides the cost,revenue and profit for last month
-def cost_revenue_and_profit_for_last_month(user,model):
+def cost_revenue_and_profit_for_last_month(company,model):
     todays_date = date.today()
     # The last day of last month
     last_month_end = todays_date - timedelta(days = todays_date.day)
@@ -302,7 +306,7 @@ def cost_revenue_and_profit_for_last_month(user,model):
             date_for_data = last_month_end - timedelta(days = last_month_end.day - 1 - day)
             try:
                 # Data for that date
-                data = model.objects.get(company = user,date = date_for_data)
+                data = model.objects.get(company = company,date = date_for_data)
                 weekly_data['cost'] += float(data.total_cost)
                 weekly_data['revenue'] += float(data.total_revenue)
                 weekly_data['profit'] += float(data.profit())
@@ -318,21 +322,21 @@ def cost_revenue_and_profit_for_last_month(user,model):
     return data_of_cost_revenue_and_profit_for_last_month
 
 # A function that generates a custom product data
-def custom_product_analysis(user,model,total_months,start_from):
+def custom_product_analysis(company,model,total_months,start_from):
     todays_date = date.today()
     custom_data = []
     for i in range(total_months):
         if start_from + i < todays_date.month:
             quantity = 0
             month = date(todays_date.year,start_from + i,1)
-            datas = model.objects.filter(company = user,date__month = month.month, date__year = todays_date.year)
+            datas = model.objects.filter(company = company,date__month = month.month, date__year = todays_date.year)
             custom_data.append(sum([data.quantity for data in datas]))
 #    print(custom_data)
     return custom_data
 
 
 # A function that generates a custom cost,reveneue and profit analysis
-def custom_cost_revenue_profit_analysis(user,model,total_months,start_from):
+def custom_cost_revenue_profit_analysis(company,model,total_months,start_from):
     todays_date = date.today()
     custom_data = {
         'cost': [],
@@ -344,7 +348,7 @@ def custom_cost_revenue_profit_analysis(user,model,total_months,start_from):
             quantity = 0
             month = date(todays_date.year,start_from + i,1)
             print(month)
-            datas = model.objects.filter(company = user,date__month = month.month,date__year = todays_date.year)
+            datas = model.objects.filter(company = company,date__month = month.month,date__year = todays_date.year)
             custom_data['cost'].append(float(sum(data.total_cost for data in datas)))
             custom_data['revenue'].append(float(sum(data.total_revenue for data in datas)))
             custom_data['profit'].append(float(sum(data.profit() for data in datas)))
@@ -353,12 +357,12 @@ def custom_cost_revenue_profit_analysis(user,model,total_months,start_from):
 
 # Sales Reports
 # A function that creates sales reports for the week
-def sales_report_for_the_week(user,model):
+def sales_report_for_the_week(company,model):
     todays_date = date.today()
     # Get the date for last week monday
     last_week_monday = todays_date - timedelta(days = 7 + todays_date.weekday())
     # Dictionary that will store all the items bought for eah day of the week
-    weekly_data = {p.name:{} for p in user.product_set.all()}
+    weekly_data = {p.name:{} for p in company.product_set.all()}
     # Add total that will be calculated at the end of the day
     weekly_data['Total'] =  {}
     # Go through 7 days in a week
@@ -367,9 +371,9 @@ def sales_report_for_the_week(user,model):
         # Date for each day
         date_for_data = last_week_monday + timedelta(days = i)
         # Dictionary to store items bought on that day
-        products = {p.name:0 for p in user.product_set.all()}
+        products = {p.name:0 for p in company.product_set.all()}
         # All items bought on that day
-        datas = model.objects.filter(company = user,date = date_for_data)
+        datas = model.objects.filter(company = company,date = date_for_data)
         # Go through each item and store it quantity in the dictionary
         for data in datas:
             products[data.product.name] = data.quantity
@@ -390,11 +394,11 @@ def sales_report_for_the_week(user,model):
     return weekly_data
 
 # A function that creates a sales report for the day
-def sales_report_for_today(user,model):
+def sales_report_for_today(company,model):
     date_for_data = date.today()
-    daily_data = {p.name:0 for p in user.product_set.all()}
+    daily_data = {p.name:0 for p in company.product_set.all()}
     # Get all the items sold today
-    datas = model.objects.filter(company = user,date = date_for_data)
+    datas = model.objects.filter(company = company,date = date_for_data)
     todays_total = 0
     for data in datas:
         daily_data[data.product.name] = data.quantity
@@ -406,9 +410,9 @@ def sales_report_for_today(user,model):
 
 
 # A function that creates sales report for the past 7 days
-def sales_report_for_the_past_7_days(user,model):
+def sales_report_for_the_past_7_days(company,model):
     # Get all the  products the company has
-    seven_days_data = {p.name:{} for p in user.product_set.all()}
+    seven_days_data = {p.name:{} for p in company.product_set.all()}
     seven_days_data['Total'] = {} # Store all the total made for each day
     todays_date = date.today()
     # Go through the past 7 days
@@ -416,7 +420,7 @@ def sales_report_for_the_past_7_days(user,model):
         total = 0 # Default total for that day
         date_for_data = (date.today() - timedelta(days =  day))
         # Data for that day
-        datas = model.objects.filter(company = user,date = date_for_data)
+        datas = model.objects.filter(company = company,date = date_for_data)
         # Provide a default quantity for all the products
         for product in seven_days_data.keys():
             seven_days_data[product][date_for_data.strftime("%A")] = 0
@@ -436,9 +440,9 @@ def sales_report_for_the_past_7_days(user,model):
 
 
 # A function that creates sales report for last month
-def sales_report_for_last_month(user,model):
+def sales_report_for_last_month(company,model):
     # Get all the products the company has
-    last_month_data = {p.name:{} for p in user.product_set.all()}
+    last_month_data = {p.name:{} for p in company.product_set.all()}
     # Add a total section to the products
     last_month_data["Total"] = {}
     last_month_end = date.today() - timedelta(days = date.today().day)
@@ -447,12 +451,12 @@ def sales_report_for_last_month(user,model):
         # Keep track of all the total for a week
         total = 0
         # Provide all the products the company has and give them a default quantity
-        products = {p.name: 0 for p in user.product_set.all()}
+        products = {p.name: 0 for p in company.product_set.all()}
         for day in range(*days_range):
 #            print(day)
             date_for_data = last_month_end - timedelta(days = last_month_end.day - day - 1)
             # Get all the data for that day
-            datas = model.objects.filter(company = user,date = date_for_data)
+            datas = model.objects.filter(company = company,date = date_for_data)
             # Go through every data gathered for that day
             for data in datas:
                 products[data.product.name] += data.quantity
@@ -471,10 +475,10 @@ def sales_report_for_last_month(user,model):
     return last_month_data
 
 # A function that generates a custom sales report
-def custom_sales_report(user,model,total_months,start_from):
+def custom_sales_report(company,model,total_months,start_from):
     todays_date = date.today()
     # A dictionary to store the data
-    custom_data = {p.name: {} for p in user.product_set.all()}
+    custom_data = {p.name: {} for p in company.product_set.all()}
     custom_data['Total'] = {} # Total section
     # Go through the range of months
     for i in range(total_months):
@@ -485,9 +489,9 @@ def custom_sales_report(user,model,total_months,start_from):
             month = date(todays_date.year,start_from + i,1);
 #            print(month)
             # A dictionary to store the products
-            products = {p.name:0 for p in user.product_set.all()}
+            products = {p.name:0 for p in company.product_set.all()}
             # Data for that month
-            datas = model.objects.filter(company = user,date__month = month.month,date__year = todays_date.year)
+            datas = model.objects.filter(company = company,date__month = month.month,date__year = todays_date.year)
             # Go through the products and update its quantity
             for data in datas:
                 products[data.product.name] += data.quantity

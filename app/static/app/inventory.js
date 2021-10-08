@@ -19,8 +19,8 @@ let searchInventory = (url,detailPath,editPath) => {
             },
             function(data){
                 let products = data.products;
-                $('#products').prevAll('h4').remove();
-                if(products.length){
+                if(products.length > 0){
+                    $('#no-products').empty();
                     for(product of products){
                         modifiedDetailPath = detailPath.split('/');
                         modifiedDetailPath[2] = String(product.id);
@@ -57,7 +57,6 @@ let searchInventory = (url,detailPath,editPath) => {
                     }
                     // Add an event to the element
                     $('.delete-product').click(function(){
-                        console.log("Hmmmm")
                         let productId = $(this).attr('id');
                         let productName = $(this).parents('div.card').find('div.card-body > h6').text();
                         $('#deleteProductLabel').text(`Delete ${productName}`); // Update the product name
@@ -67,7 +66,7 @@ let searchInventory = (url,detailPath,editPath) => {
                 }
                 else{
                     let newInventoryUrl = $('#new-inventory-create-url').attr('href');
-                    $('#products').before(
+                    $('#no-products').html(
                         `<h4 class="text-center" style="color: #535353">No Results Found</h4>
                         <a class='btn btn-primary d-block mt-3 m-auto' href='${newInventoryUrl}' style='max-width:400px'>Add Inventory</a>`
                     );

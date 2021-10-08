@@ -25,10 +25,10 @@ class IndexView(generic.View):
     @method_decorator(login_required)
     def dispatch(self,request,*args,**kwargs):
         todays_date = date.today()
-        transactions = request.user.transaction_set.filter(date = todays_date)[:10]
-        # stock = request.user.stockoverview
+        transactions = request.user.companydetails.transaction_set.filter(date = todays_date)[:10]
         try:
-            user_stock = request.user.stockoverview
+            utils.reset_data(request.user.companydetails,CostRevenueAnalysis,StockOverview)
+            user_stock = request.user.companydetails.stockoverview
             if user_stock.stock_left() > 0:
                 stock = {
                     'width':user_stock.stock_left()/user_stock.stock,
@@ -44,7 +44,6 @@ class IndexView(generic.View):
             'transactions': transactions,
             'stock':stock
         }
-        reset_data = utils.reset_data(request.user,CostRevenueAnalysis,StockOverview)
         response =  render(request,self.template_name,context)
         return response
 
@@ -55,10 +54,10 @@ class IndexAnalysisView(generic.View):
     @method_decorator(login_required)
     def post(self,request,*args,**kwargs):
         # Sales made for the past 7 days
-        sales_data_for_7_days = utils.general_sales_made_for_the_past_7_days(request.user)
+        sales_data_for_7_days = utils.general_sales_made_for_the_past_7_days(request.user.companydetails)
 
         # Maximum item sold for the past 7 days
-        data_for_maximum_item_sold = utils.maximum_item_sold_for_the_past_7_days(request.user,ProductData)
+        data_for_maximum_item_sold = utils.maximum_item_sold_for_the_past_7_days(request.user.companydetails,ProductData)
 
         data = {
             'data_for_7_days': sales_data_for_7_days,
@@ -72,14 +71,13 @@ class IndexAnalysisView(generic.View):
 class InventoryView(LoginRequiredMixin,generic.ListView):
     """ This class shows all the inventory """
     model = Product
-    context_object_name = 'products'
     template_name = 'app/inventory.html'
 
     def get_context_data(self,*args,**kwargs):
         context = super().get_context_data(*args,**kwargs)
-        total_inventory = sum([p.quantity for p in self.request.user.product_set.all()])
+        total_inventory = sum([p.quantity for p in self.request.user.companydetails.product_set.all()])
         context['total_inventory'] = total_inventory
-        context['products'] = Product.objects.filter(company = self.request.user)
+        context['products'] = Product.objects.filter(company = self.request.user.companydetails)
         return context
 
 class InventoryDetailView(LoginRequiredMixin,generic.DetailView):
@@ -96,29 +94,29 @@ class InventoryCreateView(LoginRequiredMixin,generic.CreateView):
 
     def form_valid(self,form):
         # Before the item is saved into the database it will be added to the stock for today
-        form.instance.company = self.request.user
+        form.instance.company = self.request.user.companydetails
         quantity = form.cleaned_data.get('quantity')
         name = form.cleaned_data.get('name')
         # Check if user's stock is being monitored
         try:
-            stock = self.request.user.stockoverview
+            stock = self.request.user.companydetails.stockoverview
             stock.stock += quantity # Increase it's quantity
             stock.save()
         except StockOverview.DoesNotExist:
             # Start montoring user's stock
             stock = StockOverview(
-                company = self.request.user,
+                company = self.request.user.companydetails,
                 stock = quantity
             )
             stock.save()
         form.save()
         last_entered_product = Product.objects.last()
+        # Create product data
         product_data = ProductData(
-            company = self.request.user,
+            company = self.request.user.companydetails,
             product = last_entered_product
         )
         product_data.save()
-        # Create product data
         messages.success(self.request,f'{name} has been successfully added to your inventory')
         return HttpResponseRedirect(reverse('app:inventory'))
 
@@ -139,7 +137,7 @@ class InventoryEditView(LoginRequiredMixin,generic.UpdateView):
         product = super().get_object()
         name = form.cleaned_data.get('name')
         diff = form.cleaned_data.get('quantity') - product.quantity
-        stock = self.request.user.stockoverview
+        stock = self.request.user.companydetails.stockoverview
         stock.stock += diff
         stock.save()
         form.save()
@@ -155,15 +153,13 @@ class InventorySearchView(generic.View):
         if query:
             products = [
                 {'image':p.image.url,'name':p.name,'price':p.unit_price,'qty':p.quantity,'id':p.id}
-                for p in request.user.product_set.filter(name__icontains = query)
+                for p in request.user.companydetails.product_set.filter(name__icontains = query)
             ]
         else:
-            print("Nothing")
             products = [
                 {'image':p.image.url,'name':p.name,'price':p.unit_price,'qty':p.quantity,'id':p.id}
-                for p in request.user.product_set.all()
+                for p in request.user.companydetails.product_set.all()
             ]
-        print(products)
         data = {
             'products':products,
             'create_inventory_url': reverse('app:inventory_create')
@@ -178,7 +174,7 @@ class InventoryAnalysisView(generic.View):
     def post(self,request,*args,**kwargs):
         product_id = int(request.POST.get('productId'))
         product = get_object_or_404(Product,id = product_id)
-        product_date = get_list_or_404(ProductData,company = request.user,product = product)[0].date
+        product_date = get_list_or_404(ProductData,company = request.user.companydetails,product = product)[0].date
         days_left = timedelta(days = product_date.day)
         past_month = (product_date - days_left).strftime("%B")
         data_for_7_days = []
@@ -189,7 +185,7 @@ class InventoryAnalysisView(generic.View):
             date_for_data = date.today() - timedelta(days = i)
             try:
                 # Get the data for each day
-                data = get_object_or_404(ProductData,company = request.user,product = product,date = date_for_data)
+                data = get_object_or_404(ProductData,company = request.user.companydetails,product = product,date = date_for_data)
                 data_for_7_days.append(data.quantity)
             except Exception as e:
                 # No data for that date
@@ -203,7 +199,7 @@ class InventoryAnalysisView(generic.View):
             date_for_data =  past_month_date - timedelta(days = day)
 #            print(date_for_data,day)
             try:
-                data = get_object_or_404(ProductData,company = request.user,product = product,date = date_for_data)
+                data = get_object_or_404(ProductData,company = request.user.companydetails,product = product,date = date_for_data)
                 if past_month_date.day - day > 21:
 #                    print("More than 21",date_for_data.strftime("%A"),date_for_data)
                     data_for_last_month[3] += data.quantity
@@ -235,9 +231,9 @@ class InventoryDeleteView(generic.View):
     def post(self,request,*args,**kwargs):
         product_id = int(request.POST.get('productId'))
         # Get The Product
-        prod = get_object_or_404(Product,company = request.user,id = product_id)
+        prod = get_object_or_404(Product,company = request.user.companydetails,id = product_id)
         # Modify the stock overview
-        stock = request.user.stockoverview
+        stock = request.user.companydetails.stockoverview
         stock.stock -= prod.quantity
         stock.save()
         # Delete the stock
@@ -295,7 +291,7 @@ class TransactionsView(LoginRequiredMixin,generic.ListView):
 
     def get_queryset(self,*args,**kwargs):
         todays_date = date.today()
-        return self.request.user.transaction_set.filter(date = todays_date)
+        return self.request.user.staff.company.transaction_set.filter(date = todays_date)
 
     def get_context_data(self,*args,**kwargs):
         context = super().get_context_data(*args,**kwargs)
@@ -318,7 +314,7 @@ class SearchProductView(generic.View):
     def post(self,request,*args,**kwargs):
         query = request.POST.get('value').strip()
 #        print(query)
-        product_list = [{'image':p.image.url,'name':p.name,'price':p.unit_price,'qty':p.quantity} for p in request.user.product_set.all().filter(name__icontains = query)]
+        product_list = [{'image':p.image.url,'name':p.name,'price':p.unit_price,'qty':p.quantity} for p in request.user.staff.company.product_set.all().filter(name__icontains = query)]
 #        print(product_list)
         data = {
             'products': product_list[:2]
@@ -337,11 +333,11 @@ class SaveTransactionView(generic.View):
         data = {}
         try:
             # Create a new transaction
-            transaction = Transaction(company = request.user,total = total)
+            transaction = Transaction(company = request.user.staff.company,total = total)
             transaction.save()
             for num,name in enumerate(product_names):
                 # First reduce the products quantity
-                prod = request.user.product_set.all().get(name = name)
+                prod = request.user.staff.company.product_set.all().get(name = name)
                 prod.quantity -= int(product_qty[num])
                 prod.save()
                 # Then save the product's item to the transaction
@@ -357,16 +353,16 @@ class SaveTransactionView(generic.View):
                     product_data.quantity += int(product_qty[num])
                     product_data.save()
                 except Exception as e:
-                    product_data = ProductData(company = request.user,product = prod,quantity = int(product_qty[num]))
+                    product_data = ProductData(company = request.user.staff.company,product = prod,quantity = int(product_qty[num]))
                     product_data.save()
                 # Increase the total cost and total number of products gotten from the transaction
                 total_products_sold += int(product_qty[num])
             # Modify the cost and revenue made for the day
-            cost_revenue_analysis = get_object_or_404(CostRevenueAnalysis,company = request.user,date = date.today())
+            cost_revenue_analysis = get_object_or_404(CostRevenueAnalysis,company = request.user.staff.company,date = date.today())
             cost_revenue_analysis.total_revenue += cost_revenue_analysis.total_revenue.from_float(float(total))
             cost_revenue_analysis.save()
             # Modify the stock overview for the day
-            stock_overview = get_object_or_404(StockOverview,company = request.user)
+            stock_overview = get_object_or_404(StockOverview,company = request.user.staff.company)
             stock_overview.stock_sold += total_products_sold
             stock_overview.save()
             data['status'] = 'success'
@@ -386,7 +382,7 @@ class AnalysisView(generic.View):
     @method_decorator(login_required)
     def dispatch(self,request,*args,**kwargs):
         context = {}
-        context['data_available'] = True if request.user.productdata_set.all().count() > 0 and request.user.costrevenueanalysis_set.all().count() > 0 else False
+        context['data_available'] = True if request.user.companydetails.productdata_set.all().count() > 0 and request.user.companydetails.costrevenueanalysis_set.all().count() > 0 else False
         return render(request,self.template_name,context)
 
 class GeneralAnalysisView(generic.View):
@@ -397,28 +393,28 @@ class GeneralAnalysisView(generic.View):
         past_month = (date.today() - timedelta(days = date.today().day)).strftime("%B")
 
         # Sales made for the past 7 days
-        sales_data_for_7_days = utils.general_sales_made_for_the_past_7_days(request.user)
+        sales_data_for_7_days = utils.general_sales_made_for_the_past_7_days(request.user.companydetails)
 
         # Sales for last month
-        sales_data_for_last_month = utils.general_sales_made_for_last_month(request.user,ProductData)
+        sales_data_for_last_month = utils.general_sales_made_for_last_month(request.user.companydetails,ProductData)
 
         # Maximum Item Sold For The Past 7 Days
-        data_for_maximum_item_sold_last_7_days = utils.maximum_item_sold_for_the_past_7_days(request.user,ProductData)
+        data_for_maximum_item_sold_last_7_days = utils.maximum_item_sold_for_the_past_7_days(request.user.companydetails,ProductData)
 
         # Minimum Item Sold For The Past 7 Days
-        data_for_minimum_item_sold_last_7_days = utils.minimum_item_sold_for_the_past_7_days(request.user,ProductData)
+        data_for_minimum_item_sold_last_7_days = utils.minimum_item_sold_for_the_past_7_days(request.user.companydetails,ProductData)
 
         # Maximum item sold last month
-        data_for_maximum_item_sold_last_month = utils.maximum_item_sold_last_month(request.user,ProductData)
+        data_for_maximum_item_sold_last_month = utils.maximum_item_sold_last_month(request.user.companydetails,ProductData)
 
         # Minimum item sold last month
-        data_for_minimum_item_sold_last_month = utils.minimum_item_sold_last_month(request.user,ProductData)
+        data_for_minimum_item_sold_last_month = utils.minimum_item_sold_last_month(request.user.companydetails,ProductData)
 
         # Cost, Revenue And Profit For The Past 7 Days
-        data_for_cost_reveue_and_profit_for_the_past_7_days = utils.cost_revenue_and_profit_for_the_past_7_days(request.user,CostRevenueAnalysis)
+        data_for_cost_reveue_and_profit_for_the_past_7_days = utils.cost_revenue_and_profit_for_the_past_7_days(request.user.companydetails,CostRevenueAnalysis)
 
         # Cost, Revenue And Profit For Last Month
-        data_for_cost_revenue_and_profit_for_last_month = utils.cost_revenue_and_profit_for_last_month(request.user,CostRevenueAnalysis)
+        data_for_cost_revenue_and_profit_for_last_month = utils.cost_revenue_and_profit_for_last_month(request.user.companydetails,CostRevenueAnalysis)
 
         data = {
             'sales_data_for_7_days': sales_data_for_7_days,
@@ -466,7 +462,7 @@ class SalesReportTemplateView(generic.View):
             # Get the date of last week sunday
             last_week_sunday = last_week_monday + timedelta(days = 6)
             title = f"Sales Report For {last_week_monday.strftime('%A %b %d, %Y')} To {last_week_sunday.strftime('%A %b %d, %Y')}"
-            data = utils.sales_report_for_the_week(request.user,ProductData)
+            data = utils.sales_report_for_the_week(request.user.companydetails,ProductData)
             context = {
                 'data': data,
                 'title': title,
@@ -475,7 +471,7 @@ class SalesReportTemplateView(generic.View):
 
         elif duration == 'today':
             todays_date = date.today()
-            data = utils.sales_report_for_today(request.user,ProductData)
+            data = utils.sales_report_for_today(request.user.companydetails,ProductData)
             context = {
                 'title': f"Sales Report For Today {date.today().strftime('%A %b %d, %Y')}.",
                 'data': data,
@@ -485,7 +481,7 @@ class SalesReportTemplateView(generic.View):
             yesterday = date.today() - timedelta(days = 1)
             last_7_days = date.today() - timedelta(days = 7)
             title = f"Sales Report From {last_7_days.strftime('%A %b %d,%Y')} To {yesterday.strftime('%A %b %d, %Y')}."
-            data = utils.sales_report_for_the_past_7_days(request.user,ProductData)
+            data = utils.sales_report_for_the_past_7_days(request.user.companydetails,ProductData)
             context = {
                 'data' : data,
                 'past_7_days': utils.get_days(),
@@ -493,7 +489,7 @@ class SalesReportTemplateView(generic.View):
                 'title': title
             }
         elif duration == 'last-month':
-            data = utils.sales_report_for_last_month(request.user,ProductData)
+            data = utils.sales_report_for_last_month(request.user.companydetails,ProductData)
             last_month = date.today() - timedelta(days = date.today().day)
             title = f"Sales Report For Last Month, {last_month.strftime('%B %Y')}"
             context = {
@@ -508,7 +504,7 @@ class SalesReportTemplateView(generic.View):
             start_month = date(2020,start_from,1).strftime('%B')
             end_month = date(2020,start_from + total_months - 1,1).strftime("%B") if start_from + total_months < date.today().month else date(2020,date.today().month - 1,1).strftime("%B")
             # Get the data
-            data = utils.custom_sales_report(request.user,ProductData,total_months,start_from)
+            data = utils.custom_sales_report(request.user.companydetails,ProductData,total_months,start_from)
             # Generate the title
             title = f"Sales Report From {start_month} {date.today().year} To {end_month} {date.today().year}."
             # A list to store the months
@@ -553,13 +549,13 @@ class GenerateCustomAnalysisView(generic.View):
 #        print(end_month)
         if analysis_type == 'product':
             title = f"Total Number Of Goods Sold From {start_month} {date.today().year} To {end_month} {date.today().year}"
-            custom_data = utils.custom_product_analysis(request.user,ProductData,total_months,start_from)
+            custom_data = utils.custom_product_analysis(request.user.companydetails,ProductData,total_months,start_from)
             data = {
                 'custom_data': custom_data
             }
         elif analysis_type == 'cost-revenue-profit':
             title = f"Total Number Of Goods Sold From {start_month} {date.today().year} To {end_month} {date.today().year}"
-            custom_data = utils.custom_cost_revenue_profit_analysis(request.user,CostRevenueAnalysis,total_months,start_from)
+            custom_data = utils.custom_cost_revenue_profit_analysis(request.user.companydetails,CostRevenueAnalysis,total_months,start_from)
             data = {
                 'cost': custom_data['cost'],
                 'revenue': custom_data['revenue'],

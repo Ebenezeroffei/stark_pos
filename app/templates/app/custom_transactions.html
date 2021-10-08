@@ -166,18 +166,18 @@
       <!-- Company Image -->
       <img src="{{ user.staff.company.image.url }}" style ='background: white;width: 50px;border-radius: 50%;height: 50px;border: 3px solid rgba(0,0,0,.2);' alt="">
        <!-- Company Name -->
-       <h5 style="font-weight: 400;display: inline-block;margin-left: 10px;">{{ user.companydetails.name }}</h5>
+       <h5 style="font-weight: 400;display: inline-block;margin-left: 10px;">{{ user.staff.company.name }}</h5>
   </nav>
    <div id="side-menu">
        <!-- Company Image -->
        <img src="{{ user.staff.company.image.url }}" style ='background: white;width: 130px;border-radius: 50%;height: 130px;border: 6px solid rgba(0,0,0,.2);margin-top: 20px' alt="">
        <!-- Company Name -->
-       <h5 style="font-weight: 400;">{{ user.companydetails.name }}</h5>
+       <h5 style="font-weight: 400;">{{ user.staff.company.name }}</h5>
        <hr/>
        <!-- Sections -->
        <ul>
-           <li><a href="{% url 'app:inventory' %}">
-              <img src="{% static 'app/images/inventory.svg' %}" style="width: 25px;position: relative;bottom:4px" alt="">
+           <li><a href="{% url 'app:transactions' %}">
+              <img src="{% static 'app/images/transaction.svg' %}" style="width: 25px;position: relative;bottom:4px" alt="">
                <span>Transactions</span>
             </a></li>
            <li><a href="{% url 'company:logout' %}">

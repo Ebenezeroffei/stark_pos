@@ -18,7 +18,6 @@ class CompanyLoginView(generic.View):
     template_name = 'company/login.html'
 
     def get(self,request):
-        print("Get")
         return render(request,self.template_name)
 
     def post(self,request):
@@ -27,14 +26,22 @@ class CompanyLoginView(generic.View):
         # Admin authentication
         user = authenticate(username = username,password = password)
         if user is not None:
-            login(request,user)
-            return HttpResponseRedirect(request.GET.get('next')) if request.GET.get('next') else HttpResponseRedirect(reverse('app:home'))
+            try:
+                if user.companydetails:
+                    login(request,user)
+                    return HttpResponseRedirect(request.GET.get('next')) if request.GET.get('next') else HttpResponseRedirect(reverse('app:home'))
+            except CompanyDetails.DoesNotExist:
+                messages.error(request,"You are not authorised to access this page.")
         else:
             # Staff authentication
             try:
                 user = User.objects.get(username = username,password = password)
-                login(request,user)
-                return HttpResponseRedirect(reverse('app:transactions'))
+                try:
+                    if user.staff.company:
+                        login(request,user)
+                        return HttpResponseRedirect(reverse('app:transactions'))
+                except CompanyDetails.DoesNotExist:
+                    messages.error(request,"You are not authorised to access this page.")
             except User.DoesNotExist:
                 messages.error(request,"Invalid username and/or password")
                 
