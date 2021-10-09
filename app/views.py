@@ -4,8 +4,8 @@ from django.shortcuts import render,get_object_or_404,get_list_or_404
 from django.views import generic
 from django.http import JsonResponse,HttpResponseRedirect
 from django.utils.decorators import method_decorator
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.mixins import LoginRequiredMixin,UserPassesTestMixin
 from django.contrib.auth.views import LoginView
 from django.urls import reverse
 from django.contrib import messages
@@ -22,6 +22,7 @@ class IndexView(generic.View):
     """ This class shows the landing page """
     template_name = 'app/dashboard.html'
 
+    @method_decorator(user_passes_test(test_func = lambda x : x.is_superuser))
     @method_decorator(login_required)
     def dispatch(self,request,*args,**kwargs):
         todays_date = date.today()
@@ -48,9 +49,11 @@ class IndexView(generic.View):
         return response
 
 
+
 class IndexAnalysisView(generic.View):
     """ This class provides the information for analysis """
 
+    @method_decorator(user_passes_test(test_func = lambda x : x.is_superuser))
     @method_decorator(login_required)
     def post(self,request,*args,**kwargs):
         # Sales made for the past 7 days
@@ -68,10 +71,13 @@ class IndexAnalysisView(generic.View):
         return JsonResponse(data)
 
 # Inventory
-class InventoryView(LoginRequiredMixin,generic.ListView):
+class InventoryView(LoginRequiredMixin,UserPassesTestMixin,generic.ListView):
     """ This class shows all the inventory """
     model = Product
     template_name = 'app/inventory.html'
+
+    def test_func(self):
+        return self.request.user.is_superuser
 
     def get_context_data(self,*args,**kwargs):
         context = super().get_context_data(*args,**kwargs)
@@ -80,13 +86,17 @@ class InventoryView(LoginRequiredMixin,generic.ListView):
         context['products'] = Product.objects.filter(company = self.request.user.companydetails)
         return context
 
-class InventoryDetailView(LoginRequiredMixin,generic.DetailView):
+
+class InventoryDetailView(LoginRequiredMixin,UserPassesTestMixin,generic.DetailView):
     """  This class displays all the details containing a product """
     model = Product
     template_name = 'app/inventory_detail.html'
 
+    def test_func(self):
+        return self.request.user.is_superuser
 
-class InventoryCreateView(LoginRequiredMixin,generic.CreateView):
+
+class InventoryCreateView(LoginRequiredMixin,UserPassesTestMixin,generic.CreateView):
     """ This class displays a class that creates a product """
     model = Product
     fields = ['name','quantity','unit_price','image']
@@ -120,7 +130,10 @@ class InventoryCreateView(LoginRequiredMixin,generic.CreateView):
         messages.success(self.request,f'{name} has been successfully added to your inventory')
         return HttpResponseRedirect(reverse('app:inventory'))
 
-class InventoryEditView(LoginRequiredMixin,generic.UpdateView):
+    def test_func(self):
+        return self.request.user.is_superuser
+
+class InventoryEditView(LoginRequiredMixin,UserPassesTestMixin,generic.UpdateView):
     """ This class displays a class that edits a product """
     model = Product
     fields = ['name','quantity','unit_price','image']
@@ -144,9 +157,13 @@ class InventoryEditView(LoginRequiredMixin,generic.UpdateView):
         messages.success(self.request,f"{name} has been successfully modified")
         return HttpResponseRedirect(reverse('app:inventory'))
 
+    def test_func(self):
+        return self.request.user.is_superuser
+
 class InventorySearchView(generic.View):
     """ This class allows the user to search for a product """
 
+    @method_decorator(user_passes_test(test_func = lambda x : x.is_superuser))
     @method_decorator(login_required)
     def post(self,request,*args,**kwargs):
         query = request.POST.get('q').strip()
@@ -170,6 +187,7 @@ class InventorySearchView(generic.View):
 class InventoryAnalysisView(generic.View):
     """ This class is responsible for delivering all the information for analysing a product """
 
+    @method_decorator(user_passes_test(test_func = lambda x : x.is_superuser))
     @method_decorator(login_required)
     def post(self,request,*args,**kwargs):
         product_id = int(request.POST.get('productId'))
@@ -227,6 +245,7 @@ class InventoryAnalysisView(generic.View):
 class InventoryDeleteView(generic.View):
     """ This class deletes a product """
 
+    @method_decorator(user_passes_test(test_func = lambda x : x.is_superuser))
     @method_decorator(login_required)
     def post(self,request,*args,**kwargs):
         product_id = int(request.POST.get('productId'))
@@ -243,7 +262,7 @@ class InventoryDeleteView(generic.View):
 
 
 # Staffs
-class StaffsListView(LoginRequiredMixin,generic.ListView):
+class StaffsListView(LoginRequiredMixin,UserPassesTestMixin,generic.ListView):
     model = Staff
     context_object_name = 'staffs'
     template_name = 'app/staffs.html'
@@ -251,9 +270,15 @@ class StaffsListView(LoginRequiredMixin,generic.ListView):
     def get_queryset(self):
         return Staff.objects.filter(company = self.request.user.companydetails)
 
+    def test_func(self):
+        return self.request.user.is_superuser
 
 
-class StaffAddView(LoginRequiredMixin,generic.View):
+
+class StaffAddView(generic.View):
+
+    @method_decorator(user_passes_test(test_func = lambda x : x.is_superuser))
+    @method_decorator(login_required)
     def post(self,request):
         # Get info
         company = request.user.companydetails
@@ -274,7 +299,10 @@ class StaffAddView(LoginRequiredMixin,generic.View):
         return JsonResponse({'status':'success','username':username,'staffId':user.id})
 
 
-class StaffDeleteView(LoginRequiredMixin,generic.View):
+class StaffDeleteView(generic.View):
+
+    @method_decorator(user_passes_test(test_func = lambda x : x.is_superuser))
+    @method_decorator(login_required)
     def post(self,request):
         staff_id = int(request.POST.get('staffId'))
         staff = User.objects.get(id = staff_id)
@@ -284,14 +312,14 @@ class StaffDeleteView(LoginRequiredMixin,generic.View):
 
 # Transaction
 # Don't forget to add login required mixin
-class TransactionsView(LoginRequiredMixin,generic.ListView):
+class TransactionsView(LoginRequiredMixin,UserPassesTestMixin,generic.ListView):
     """ This class shows all the transactions """
     context_object_name = 'transactions'
     template_name = 'app/custom_transactions.html'
 
     def get_queryset(self,*args,**kwargs):
         todays_date = date.today()
-        return self.request.user.staff.company.transaction_set.filter(date = todays_date)
+        return self.request.user.staff.company.transaction_set.filter(date = todays_date)[::-1]
 
     def get_context_data(self,*args,**kwargs):
         context = super().get_context_data(*args,**kwargs)
@@ -299,10 +327,17 @@ class TransactionsView(LoginRequiredMixin,generic.ListView):
         context['total_transaction_for_today'] = len(context['transactions'])
         return context
 
+    def test_func(self):
+        return not self.request.user.is_superuser
+
+
+
 class TransactionCreateView(generic.View):
     """ This page creates a transaction """
     template_name = 'app/custom_transaction_create.html'
 
+
+    @method_decorator(user_passes_test(test_func = lambda x : not x.is_superuser))
     @method_decorator(login_required)
     def dispatch(self,request,*args,**kwargs):
         return render(request,self.template_name)
@@ -310,10 +345,10 @@ class TransactionCreateView(generic.View):
 class SearchProductView(generic.View):
     """ This class is reponsible for searching for a product """
 
+    @method_decorator(user_passes_test(test_func = lambda x : not x.is_superuser))
     @method_decorator(login_required)
     def post(self,request,*args,**kwargs):
         query = request.POST.get('value').strip()
-#        print(query)
         product_list = [{'image':p.image.url,'name':p.name,'price':p.unit_price,'qty':p.quantity} for p in request.user.staff.company.product_set.all().filter(name__icontains = query)]
 #        print(product_list)
         data = {
@@ -324,6 +359,8 @@ class SearchProductView(generic.View):
 class SaveTransactionView(generic.View):
     """ This class is responsible for saving a new transaction """
 
+
+    @method_decorator(user_passes_test(test_func = lambda x : not x.is_superuser))
     @method_decorator(login_required)
     def post(self,request,*args,**kwargs):
         total = float(request.POST.get('total'))
@@ -379,6 +416,7 @@ class AnalysisView(generic.View):
     """ This class shows all the analysis for a company """
     template_name = 'app/analysis.html'
 
+    @method_decorator(user_passes_test(test_func = lambda x : x.is_superuser))
     @method_decorator(login_required)
     def dispatch(self,request,*args,**kwargs):
         context = {}
@@ -388,6 +426,7 @@ class AnalysisView(generic.View):
 class GeneralAnalysisView(generic.View):
     """ This class provides all the information for making analysis """
 
+    @method_decorator(user_passes_test(test_func = lambda x : x.is_superuser))
     @method_decorator(login_required)
     def post(self,request,*args,**kwargs):
         past_month = (date.today() - timedelta(days = date.today().day)).strftime("%B")
@@ -445,6 +484,7 @@ class SalesReportView(generic.View):
     """ This class is responsible for displaying the sales reports page """
     template_name = 'app/sales_reports.html'
 
+    @method_decorator(user_passes_test(test_func = lambda x : x.is_superuser))
     @method_decorator(login_required)
     def dispatch(self,request,*args,**kwargs):
         return render(request,self.template_name)
@@ -453,6 +493,8 @@ class SalesReportView(generic.View):
 class SalesReportTemplateView(generic.View):
     template_name = 'app/sales_report_template.html'
 
+
+    @method_decorator(user_passes_test(test_func = lambda x : x.is_superuser))
     @method_decorator(login_required)
     def dispatch(self,request,*args,**kwargs):
         duration = self.kwargs.get("duration");
@@ -529,6 +571,8 @@ class CustomAnalysisView(generic.View):
     """ This view displays a page where users can generate a custom product or cost analysis """
     template_name = 'app/custom_analysis.html'
 
+
+    @method_decorator(user_passes_test(test_func = lambda x : x.is_superuser))
     @method_decorator(login_required)
     def dispatch(self,request,*args,**kwargs):
         context = {'type': self.kwargs.get('type')}
@@ -538,6 +582,8 @@ class CustomAnalysisView(generic.View):
 class GenerateCustomAnalysisView(generic.View):
     """ This class genrates a custom data for analysis """
 
+
+    @method_decorator(user_passes_test(test_func = lambda x : x.is_superuser))
     @method_decorator(login_required)
     def post(self,request,*args,**kwargs):
         analysis_type = request.POST.get('analysisType')
