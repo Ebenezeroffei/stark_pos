@@ -98,7 +98,7 @@
                         $("#graph-container").css('visibility','visible');
                         $('#graph-container').slideDown();
                         $('#graph-container > .card-header').text(data['title']);
-                        analysisType === 'product' ?                         generateGraph('product',data['months'],data['title'],data['custom_data']) : generateGraph('cost-revenue-profit',data['months'],data['title'],null,data['cost'],data['revenue'],data['profit'])
+                        analysisType === 'product' ? generateGraph('product',data['months'],data['title'],data['custom_data']) : generateGraph('cost-revenue-profit',data['months'],data['title'],null,data['revenue'])
                     },
                 );
             });
@@ -107,7 +107,7 @@
         generateCustomAnalysis()
 
         // A function that generates the graph
-        let generateGraph = (analysisType,labels,title,data = null,cost = null,revenue = null,profit = null) => {
+        let generateGraph = (analysisType,labels,title,data = null,revenue = null) => {
             let chart1 = document.getElementById('chart1');
             let dataset = undefined;
             let yLabel = undefined;
@@ -128,28 +128,12 @@
                 yLabel = 'GHC';
                 dataset = [
                     {
-                        label: "Cost",
-                        data:cost,
-                        borderColor: 'rgb(255, 99, 132)',
-                        borderWidth: 2,
-                        fill:false,
-                        pointBackgroundColor: 'rgb(255, 99, 132)',
-                    },
-                    {
                         label: "Revenue",
                         data:revenue,
                         borderColor: 'rgb(54, 162, 235)',
                         borderWidth: 2,
                         fill:false,
                         pointBackgroundColor: 'rgb(54, 162, 235)',
-                    },
-                    {
-                        label: "Profit/Loss",
-                        data:profit,
-                        borderColor: 'rgb(255, 159, 64)',
-                        borderWidth: 2,
-                        fill:false,
-                        pointBackgroundColor:'rgb(255, 159, 64)',
                     }
                 ]
             }

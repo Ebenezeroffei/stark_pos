@@ -469,12 +469,8 @@ class GeneralAnalysisView(generic.View):
             'data_for_minimum_item_sold_last_month': data_for_minimum_item_sold_last_month[0],
             'product_name_for_minimum_item_sold_last_month': data_for_minimum_item_sold_last_month[1],
             'past_month': past_month,
-            'cost_for_the_past_7_days': data_for_cost_reveue_and_profit_for_the_past_7_days['cost'],
             'revenue_for_the_past_7_days': data_for_cost_reveue_and_profit_for_the_past_7_days['revenue'],
-            'profit_for_the_past_7_days': data_for_cost_reveue_and_profit_for_the_past_7_days['profit'],
-            'cost_for_last_month': data_for_cost_revenue_and_profit_for_last_month['cost'],
             'revenue_for_last_month': data_for_cost_revenue_and_profit_for_last_month['revenue'],
-            'profit_for_last_month': data_for_cost_revenue_and_profit_for_last_month['profit']
         }
         return JsonResponse(data)
 
@@ -603,9 +599,7 @@ class GenerateCustomAnalysisView(generic.View):
             title = f"Total Number Of Goods Sold From {start_month} {date.today().year} To {end_month} {date.today().year}"
             custom_data = utils.custom_cost_revenue_profit_analysis(request.user.companydetails,CostRevenueAnalysis,total_months,start_from)
             data = {
-                'cost': custom_data['cost'],
                 'revenue': custom_data['revenue'],
-                'profit': custom_data['profit']
             }
 
         months = []

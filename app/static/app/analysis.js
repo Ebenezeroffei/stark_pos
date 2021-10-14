@@ -40,11 +40,11 @@ let analysisInit = (url = null,csrfmiddlewaretoken = null) => {
                 // Least Item Sold For Last Month
                 allGraphs('chart6',data['data_for_minimum_item_sold_last_month'],data['weeks'],`Least Item Sold For Last Month - ${data['past_month']}`,'Quantity','Quantity',true,data['product_name_for_minimum_item_sold_last_month'],3)
     
-                // Cost, Revenue And Profit For The Past 7 Days
-                specialGraph('chart7',data['cost_for_the_past_7_days'],data['revenue_for_the_past_7_days'],data['profit_for_the_past_7_days'],data['days_of_the_week'],'Cost, Revenue And Profit For The Past 7 Days')
+                // Revenue For The Past Three Days
+                specialGraph('chart7',data['revenue_for_the_past_7_days'],data['days_of_the_week'],'Revenue For The Past Three Days')
     
-                // Cost, Revenue And Profit For Last Month
-                specialGraph('chart8',data['cost_for_last_month'],data['revenue_for_last_month'],data['profit_for_last_month'],data['weeks'],'Cost, Revenue And Profit For Last Month')
+                // Revenue For Last Month
+                specialGraph('chart8',data['revenue_for_last_month'],data['weeks'],'Revenue For Last Month')
     
             },
             'json'
@@ -157,7 +157,7 @@ let allGraphs = (el,data,labels,title,label,yAxesLabel = 'Quantity',customToolti
 
 
 // A function that creates a special graph for elements with two or more datasets
-let specialGraph = (el,cost,revenue,profit,labels,title) => {
+let specialGraph = (el,revenue,labels,title) => {
     let chart1 = document.getElementById(el);
 
     // Configurations
@@ -167,28 +167,12 @@ let specialGraph = (el,cost,revenue,profit,labels,title) => {
             labels: labels,
             datasets: [
                 {
-                    label: "Cost",
-                    data:cost,
-                    borderColor: 'rgb(255, 99, 132)',
-                    borderWidth: 2,
-                    fill:false,
-                    pointBackgroundColor: 'rgb(255, 99, 132)',
-                },
-                {
                     label: "Revenue",
                     data:revenue,
                     borderColor: 'rgb(54, 162, 235)',
                     borderWidth: 2,
                     fill:false,
                     pointBackgroundColor: 'rgb(54, 162, 235)',
-                },
-                {
-                    label: "Profit/Loss",
-                    data:profit,
-                    borderColor: 'rgb(255, 159, 64)',
-                    borderWidth: 2,
-                    fill:false,
-                    pointBackgroundColor:'rgb(255, 159, 64)',
                 }
             ]
         },

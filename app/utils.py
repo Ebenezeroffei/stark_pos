@@ -256,9 +256,7 @@ def minimum_item_sold_last_month(company,model):
 def cost_revenue_and_profit_for_the_past_7_days(company,model):
     # A dictionary to store data for the past 7 days
     data_for_past_7_days = {
-        'cost': [],
         'revenue': [],
-        'profit': [],
     }
     todays_date = date.today()
     # Go through the 7 days
@@ -269,15 +267,11 @@ def cost_revenue_and_profit_for_the_past_7_days(company,model):
             # Data for that day
             data = model.objects.get(company = company,date = date_for_data)
             # Append data gotten for that day
-            data_for_past_7_days['cost'].append(float(data.total_cost))
             data_for_past_7_days['revenue'].append(float(data.total_revenue))
-            data_for_past_7_days['profit'].append(float(data.profit()))
         # No data was found
         except model.DoesNotExist:
             # Append default value of 0.00
-            data_for_past_7_days['cost'].append(float(0.00))
             data_for_past_7_days['revenue'].append(float(0.00))
-            data_for_past_7_days['profit'].append(float(0.00))
 
 #    print(data_for_past_7_days)
     return data_for_past_7_days
@@ -290,16 +284,14 @@ def cost_revenue_and_profit_for_last_month(company,model):
     last_month_end = todays_date - timedelta(days = todays_date.day)
     # A dictionary that will store data for the month
     data_of_cost_revenue_and_profit_for_last_month = {
-        'cost': [],
-        'revenue': [],
-        'profit': []
+        'revenue': []
     }
     # A dictionary that stores the start and end day of a week
     month_range = {'Week1':(0,7),'Week2':(7,14),'Week3':(14,21),"Week4":(21,last_month_end.day)}
     # Go through each week
     for week,week_range in month_range.items():
         # A dictionary that will store data for the week
-        weekly_data = {'cost':float(0.00),'revenue':float(0.00),'profit': float(0.00)}
+        weekly_data = {'revenue':float(0.00)}
         # Go through each day of the week
         for day in range(*week_range):
             # Date of that day
@@ -307,9 +299,7 @@ def cost_revenue_and_profit_for_last_month(company,model):
             try:
                 # Data for that date
                 data = model.objects.get(company = company,date = date_for_data)
-                weekly_data['cost'] += float(data.total_cost)
                 weekly_data['revenue'] += float(data.total_revenue)
-                weekly_data['profit'] += float(data.profit())
             # No data was found
             except model.DoesNotExist as e:
 #                print(e)
@@ -339,9 +329,7 @@ def custom_product_analysis(company,model,total_months,start_from):
 def custom_cost_revenue_profit_analysis(company,model,total_months,start_from):
     todays_date = date.today()
     custom_data = {
-        'cost': [],
         'revenue': [],
-        'profit': []
     }
     for i in range(total_months):
         if start_from + i < todays_date.month:
@@ -349,11 +337,11 @@ def custom_cost_revenue_profit_analysis(company,model,total_months,start_from):
             month = date(todays_date.year,start_from + i,1)
             print(month)
             datas = model.objects.filter(company = company,date__month = month.month,date__year = todays_date.year)
-            custom_data['cost'].append(float(sum(data.total_cost for data in datas)))
             custom_data['revenue'].append(float(sum(data.total_revenue for data in datas)))
-            custom_data['profit'].append(float(sum(data.profit() for data in datas)))
 #    print(custom_data)
     return custom_data
+
+
 
 # Sales Reports
 # A function that creates sales reports for the week
@@ -486,7 +474,7 @@ def custom_sales_report(company,model,total_months,start_from):
         if start_from + i < todays_date.month:
             total = 0
             # Get the month
-            month = date(todays_date.year,start_from + i,1);
+            month = date(todays_date.year,start_from + i,1)
 #            print(month)
             # A dictionary to store the products
             products = {p.name:0 for p in company.product_set.all()}
