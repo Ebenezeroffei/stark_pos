@@ -288,13 +288,3 @@ let updatePreview = () => {
 }
 
 
-// A function that calcultes the profit of a product
-let calculateProfit = () => {
-    let cost = Number($('#cost').text().substring(4,).trim());
-    let price = Number($('#price').text().substring(4,).trim());
-    let profit = String(price - cost);
-    let profitLst = profit.split('.');
-    profitLst.length > 1 ? profitLst[1] = profitLst[1].slice(0,2).padEnd(2,'0') : profitLst[1] = '00';
-    $('#profit').html(`GH&#8373; ${profitLst.join('.')}`)
-}
-

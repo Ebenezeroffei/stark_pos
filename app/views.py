@@ -311,11 +311,10 @@ class StaffDeleteView(generic.View):
 
 
 # Transaction
-# Don't forget to add login required mixin
 class TransactionsView(LoginRequiredMixin,UserPassesTestMixin,generic.ListView):
     """ This class shows all the transactions """
     context_object_name = 'transactions'
-    template_name = 'app/custom_transactions.html'
+    template_name = 'app/transactions.html'
 
     def get_queryset(self,*args,**kwargs):
         todays_date = date.today()
@@ -334,7 +333,7 @@ class TransactionsView(LoginRequiredMixin,UserPassesTestMixin,generic.ListView):
 
 class TransactionCreateView(generic.View):
     """ This page creates a transaction """
-    template_name = 'app/custom_transaction_create.html'
+    template_name = 'app/transaction_create.html'
 
 
     @method_decorator(user_passes_test(test_func = lambda x : not x.is_superuser))

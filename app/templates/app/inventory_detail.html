@@ -54,6 +54,5 @@
     <script>
         inventoryInit();
         productAnalysis("{% url 'app:inventory_analysis' %}",{{object.id}},$("input[name = csrfmiddlewaretoken]").val());
-        calculateProfit();
     </script>
 {% endblock %}
