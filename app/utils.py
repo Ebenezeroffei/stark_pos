@@ -335,7 +335,7 @@ def custom_cost_revenue_profit_analysis(company,model,total_months,start_from):
         if start_from + i < todays_date.month:
             quantity = 0
             month = date(todays_date.year,start_from + i,1)
-            print(month)
+            # print(month)
             datas = model.objects.filter(company = company,date__month = month.month,date__year = todays_date.year)
             custom_data['revenue'].append(float(sum(data.total_revenue for data in datas)))
 #    print(custom_data)
@@ -378,7 +378,11 @@ def sales_report_for_the_week(company,model):
         for qty in datas.values():
             product_weekly_total += qty
         weekly_data[product]['product_weekly_total'] = product_weekly_total
-#    print(weekly_data)
+
+    # Remove all unwanted data
+    if sum(value for value in weekly_data['Total'].values()):
+        filtered_weekly_data = {product:data for product,data in weekly_data.items() if sum(data.values())}
+        return filtered_weekly_data
     return weekly_data
 
 # A function that creates a sales report for the day
@@ -393,7 +397,6 @@ def sales_report_for_today(company,model):
         todays_total += data.quantity
     # Insert the total to daily data
     daily_data['Total'] = todays_total
-#    print(daily_data)
     return daily_data
 
 
@@ -423,7 +426,11 @@ def sales_report_for_the_past_7_days(company,model):
     for product,data in seven_days_data.items():
         product_weekly_total = sum([total for total in data.values()])
         seven_days_data[product]['total'] = product_weekly_total
-#    print(seven_days_data)
+    
+    # Remove all unwanted data
+    if sum(value for value in seven_days_data['Total'].values()):
+        filtered_seven_days_data = {product:data for product,data in seven_days_data.items() if sum(data.values())}
+        return filtered_seven_days_data
     return seven_days_data
 
 
@@ -459,7 +466,10 @@ def sales_report_for_last_month(company,model):
         product_monthly_total = sum([i for i in data.values() ])
         last_month_data[item]['total'] = product_monthly_total
 
-#    print(last_month_data)
+    # Remove all unwanted data
+    if sum(value for value in last_month_data['Total'].values()):
+        filtered_last_month_data = {product:data for product,data in last_month_data.items() if sum(data.values())}
+        return filtered_last_month_data
     return last_month_data
 
 # A function that generates a custom sales report
@@ -492,6 +502,9 @@ def custom_sales_report(company,model,total_months,start_from):
     # Go throug the data and find its grand total
     for key,value in custom_data.items():
         custom_data[key]['total'] = sum(value.values())
-#    print(custom_data)
+    # Remove all unwanted data
+    if sum(value for value in custom_data['Total'].values()):
+        filtered_custom_data = {product:data for product,data in custom_data.items() if sum(data.values())}
+        return filtered_custom_data
     return custom_data
 

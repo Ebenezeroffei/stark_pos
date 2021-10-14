@@ -78,129 +78,133 @@
     </style>
 </head>
 <body>
-    <div id="report">
-        <h3>{{ user.companydetails.name }}</h3><hr/>
-        <h5>{{title}}</h5>
-    <!-- Last Week -->
-    {% if duration == 'last-week' %}
-        <table style="width: 100%">
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Monday</th>
-                    <th>Tuesday</th>
-                    <th>Wednesday</th>
-                    <th>Thursday</th>
-                    <th>Friday</th>
-                    <th>Saturday</th>
-                    <th>Sunday</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <!-- Display all the products and their quantities -->
-            {% for product,product_data in data.items %}
-                <tr>
-                   <!-- Product -->
-                    <td>{{product}}</td>
-                    {% for quantity in product_data.values %}
-                       <!-- Quantity -->
-                        <td class="{% cycle 'data-1' 'data-2' 'data-3' 'data-4' 'data-5' 'data-6' 'data-7' 'total' %}">{{quantity}}</td>
-                    {% endfor %}
-                </tr>
-            {% endfor %}
-        </table>
-    <!-- Today -->
-    {% elif duration == 'today' %}
-        <table style="width: 100%">
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for product,quantity in data.items %}
+    {% if total %}
+        <div id="report">
+            <h3>{{ user.companydetails.name }}</h3><hr/>
+            <h5>{{title}}</h5>
+        <!-- Last Week -->
+        {% if duration == 'last-week' %}
+            <table style="width: 100%">
+                <thead>
                     <tr>
-                        <td>{{product}}</td>
-                        <td>{{quantity}}</td>
+                        <th>Product</th>
+                        <th>Monday</th>
+                        <th>Tuesday</th>
+                        <th>Wednesday</th>
+                        <th>Thursday</th>
+                        <th>Friday</th>
+                        <th>Saturday</th>
+                        <th>Sunday</th>
+                        <th>Total</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    <!-- Last Month -->
-    {% elif duration == 'last-month' %}
-        <table style="width: 100%">
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Week 1</th>
-                    <th>Week 2</th>
-                    <th>Week 3</th>
-                    <th>Week 4</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
+                </thead>
+                <!-- Display all the products and their quantities -->
                 {% for product,product_data in data.items %}
                     <tr>
+                    <!-- Product -->
                         <td>{{product}}</td>
                         {% for quantity in product_data.values %}
-                            <td>{{ quantity }}</td>
+                        <!-- Quantity -->
+                            <td class="{% cycle 'data-1' 'data-2' 'data-3' 'data-4' 'data-5' 'data-6' 'data-7' 'total' %}">{{quantity}}</td>
                         {% endfor %}
                     </tr>
                 {% endfor %}
-            </tbody>
-        </table>
-    <!-- Past 7 Days -->
-    {% elif duration == 'past-7-days' %}
-        <table style="width: 100%">
-            <thead>
-                <tr>
-                   <th>Product</th>
-                    {% for day in past_7_days %}
-                        <th>{{day}}</th>
-                    {% endfor %}
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for product,product_data in data.items %}
+            </table>
+        <!-- Today -->
+        {% elif duration == 'today' %}
+            <table style="width: 100%">
+                <thead>
                     <tr>
-                        <td>{{product}}</td>
-                        {% for quantity in product_data.values %}
+                        <th>Product</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product,quantity in data.items %}
+                        <tr>
+                            <td>{{product}}</td>
                             <td>{{quantity}}</td>
-                        {% endfor %}
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    <!-- Custom -->
-    {% elif duration == 'custom' %}
-        <table style = 'width: 100%'>
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    {% for month in months %}
-                        <th>{{month}}</th>
+                        </tr>
                     {% endfor %}
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for product,product_data in data.items %}
+                </tbody>
+            </table>
+        <!-- Last Month -->
+        {% elif duration == 'last-month' %}
+            <table style="width: 100%">
+                <thead>
                     <tr>
-                        <td>{{ product }}</td>
-                        {% for quantity in product_data.values %}
-                            <td>{{quantity}}</td>
-                        {% endfor %}
+                        <th>Product</th>
+                        <th>Week 1</th>
+                        <th>Week 2</th>
+                        <th>Week 3</th>
+                        <th>Week 4</th>
+                        <th>Total</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {% for product,product_data in data.items %}
+                        <tr>
+                            <td>{{product}}</td>
+                            {% for quantity in product_data.values %}
+                                <td>{{ quantity }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        <!-- Past 7 Days -->
+        {% elif duration == 'past-7-days' %}
+            <table style="width: 100%">
+                <thead>
+                    <tr>
+                    <th>Product</th>
+                        {% for day in past_7_days %}
+                            <th>{{day}}</th>
+                        {% endfor %}
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product,product_data in data.items %}
+                        <tr>
+                            <td>{{product}}</td>
+                            {% for quantity in product_data.values %}
+                                <td>{{quantity}}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        <!-- Custom -->
+        {% elif duration == 'custom' %}
+            <table style = 'width: 100%'>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        {% for month in months %}
+                            <th>{{month}}</th>
+                        {% endfor %}
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product,product_data in data.items %}
+                        <tr>
+                            <td>{{ product }}</td>
+                            {% for quantity in product_data.values %}
+                                <td>{{quantity}}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+        <p>Total Items Sold: <span>{{ total }}</span></p>
+        </div>
+        <button type="button" id="print">Print Report</button>
+    {% else %}
+        <h3 style="margin: 50px;color: #535353;text-align: center;" >No Sales Data Was Retrieved In The Range Of Time Specified.</h3>
     {% endif %}
-    <p>Total Items Sold: <span>{{ total }}</span></p>
-    </div>
-    <button type="button" id="print">Print Report</button>
     <script>
         // Print the report
         document.getElementById('print').onclick = () => {
