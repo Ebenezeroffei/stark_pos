@@ -10,7 +10,7 @@ from django.contrib.auth.views import LoginView
 from django.urls import reverse
 from django.contrib import messages
 from django.contrib.auth.models import User
-from .models import Product,Transaction,StockOverview,CostRevenueAnalysis,ProductData,Staff
+from .models import Product,Transaction,StockOverview,RevenueAnalysis,ProductData,Staff
 from . import utils
 
 
@@ -28,7 +28,7 @@ class IndexView(generic.View):
         todays_date = date.today()
         transactions = request.user.companydetails.transaction_set.filter(date = todays_date)[:10]
         try:
-            utils.reset_data(request.user.companydetails,CostRevenueAnalysis,StockOverview)
+            utils.reset_data(request.user.companydetails,RevenueAnalysis,StockOverview)
             user_stock = request.user.companydetails.stockoverview
             if user_stock.stock_left() > 0:
                 stock = {
@@ -392,12 +392,12 @@ class SaveTransactionView(generic.View):
                 except Exception as e:
                     product_data = ProductData(company = request.user.staff.company,product = prod,quantity = int(product_qty[num]))
                     product_data.save()
-                # Increase the total cost and total number of products gotten from the transaction
+                # Increase the total reveneue and total number of products gotten from the transaction
                 total_products_sold += int(product_qty[num])
-            # Modify the cost and revenue made for the day
-            cost_revenue_analysis = get_object_or_404(CostRevenueAnalysis,company = request.user.staff.company,date = date.today())
-            cost_revenue_analysis.total_revenue += cost_revenue_analysis.total_revenue.from_float(float(total))
-            cost_revenue_analysis.save()
+            # Modify the revenue and revenue made for the day
+            revenue_analysis = get_object_or_404(RevenueAnalysis,company = request.user.staff.company,date = date.today())
+            revenue_analysis.total_revenue += revenue_analysis.total_revenue.from_float(float(total))
+            revenue_analysis.save()
             # Modify the stock overview for the day
             stock_overview = get_object_or_404(StockOverview,company = request.user.staff.company)
             stock_overview.stock_sold += total_products_sold
@@ -420,7 +420,7 @@ class AnalysisView(generic.View):
     @method_decorator(login_required)
     def dispatch(self,request,*args,**kwargs):
         context = {}
-        context['data_available'] = True if request.user.companydetails.productdata_set.all().count() > 0 and request.user.companydetails.costrevenueanalysis_set.all().count() > 0 else False
+        context['data_available'] = True if request.user.companydetails.productdata_set.all().count() > 0 and request.user.companydetails.revenueanalysis_set.all().count() > 0 else False
         return render(request,self.template_name,context)
 
 class GeneralAnalysisView(generic.View):
@@ -449,11 +449,11 @@ class GeneralAnalysisView(generic.View):
         # Minimum item sold last month
         data_for_minimum_item_sold_last_month = utils.minimum_item_sold_last_month(request.user.companydetails,ProductData)
 
-        # Cost, Revenue And Profit For The Past 7 Days
-        data_for_cost_reveue_and_profit_for_the_past_7_days = utils.cost_revenue_and_profit_for_the_past_7_days(request.user.companydetails,CostRevenueAnalysis)
+        # Revenue For The Past 7 Days
+        data_for_reveue_for_the_past_7_days = utils.revenue_for_the_past_7_days(request.user.companydetails,RevenueAnalysis)
 
-        # Cost, Revenue And Profit For Last Month
-        data_for_cost_revenue_and_profit_for_last_month = utils.cost_revenue_and_profit_for_last_month(request.user.companydetails,CostRevenueAnalysis)
+        # Revenue For Last Month
+        data_for_revenue_for_last_month = utils.revenue_for_last_month(request.user.companydetails,RevenueAnalysis)
 
         data = {
             'sales_data_for_7_days': sales_data_for_7_days,
@@ -469,8 +469,8 @@ class GeneralAnalysisView(generic.View):
             'data_for_minimum_item_sold_last_month': data_for_minimum_item_sold_last_month[0],
             'product_name_for_minimum_item_sold_last_month': data_for_minimum_item_sold_last_month[1],
             'past_month': past_month,
-            'revenue_for_the_past_7_days': data_for_cost_reveue_and_profit_for_the_past_7_days['revenue'],
-            'revenue_for_last_month': data_for_cost_revenue_and_profit_for_last_month['revenue'],
+            'revenue_for_the_past_7_days': data_for_reveue_for_the_past_7_days['revenue'],
+            'revenue_for_last_month': data_for_revenue_for_last_month['revenue'],
         }
         return JsonResponse(data)
 
@@ -564,7 +564,7 @@ class SalesReportTemplateView(generic.View):
 
 
 class CustomAnalysisView(generic.View):
-    """ This view displays a page where users can generate a custom product or cost analysis """
+    """ This view displays a page where users can generate a custom product or revenue analysis """
     template_name = 'app/custom_analysis.html'
 
 
@@ -595,9 +595,9 @@ class GenerateCustomAnalysisView(generic.View):
             data = {
                 'custom_data': custom_data
             }
-        elif analysis_type == 'cost-revenue-profit':
+        elif analysis_type == 'revenue':
             title = f"Total Number Of Goods Sold From {start_month} {date.today().year} To {end_month} {date.today().year}"
-            custom_data = utils.custom_cost_revenue_profit_analysis(request.user.companydetails,CostRevenueAnalysis,total_months,start_from)
+            custom_data = utils.custom_revenue_analysis(request.user.companydetails,RevenueAnalysis,total_months,start_from)
             data = {
                 'revenue': custom_data['revenue'],
             }

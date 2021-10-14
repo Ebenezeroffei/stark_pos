@@ -71,20 +71,15 @@ class StockOverview(models.Model):
     def stock_left(self):
         return self.stock - self.stock_sold
 
-class CostRevenueAnalysis(models.Model):
-    """ This class stores the total cost and total revernu made for each day """
+class RevenueAnalysis(models.Model):
+    """ This class stores the total revernu made for each day """
     company = models.ForeignKey(CompanyDetails,on_delete = models.CASCADE)
     total_revenue = models.DecimalField(max_digits = 1000,decimal_places = 2,default = 0)
     date = models.DateField(default = timezone.now)
 
     def __str__(self):
-        return f"Total cost and total revenue for {self.company.name} on {self.date.strftime('%A')}, {self.date}"
+        return f"Total revenue for {self.company.name} on {self.date.strftime('%A')}, {self.date}"
 
-#    def __str__(self):
-#        return f"Cost, Revenue analysis for {self.company.companydetails.name}"
-
-    def profit(self):
-        return self.total_revenue - self.total_cost
 
     class Meta:
         ordering = ['-date']

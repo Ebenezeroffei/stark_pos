@@ -2,16 +2,16 @@ import calendar
 from datetime import date,timedelta
 from django.shortcuts import get_object_or_404,get_list_or_404
 
-# A function that resets the stock overview and the cost , revenue analysis
+# A function that resets the stock overview and the revenue analysis
 def reset_data(company,model1,model2):
     try:
-        # Check if there cost,revenue for today has been created
+        # Check if there revenue for today has been created
         todays_date = date.today()
-        cost_rev = model1.objects.get(company = company,date = todays_date)
+        rev = model1.objects.get(company = company,date = todays_date)
     except model1.DoesNotExist:
-        # Create a new cost revenue analysis for today
-        cost_rev = model1(company = company,date = todays_date)
-        cost_rev.save()
+        # Create a new  revenue analysis for today
+        rev = model1(company = company,date = todays_date)
+        rev.save()
         # Find the total number of stock for the
         products = company.product_set.all()
         quantity = 0
@@ -78,7 +78,7 @@ def general_sales_made_for_the_past_7_days(company):
     for i in range(1,8): # Loop through 7 days of the week
         quantity = 0 # Default quantity
         date_for_data = date.today() - timedelta(days = i)
-#            print(date_for_data)
+        # print(date_for_data)
         # List of products on a particylar date
         datas = company.productdata_set.filter(date = date_for_data)
         for data in datas: # Loop through every product
@@ -95,11 +95,11 @@ def maximum_item_sold_for_the_past_7_days(company,model):
             data = max(get_list_or_404(model,company = company,date = date_for_data),key = lambda x: x.quantity)
             data_for_maximum_item_sold.append(data.quantity)
             label_for_maximum_item_sold.append(data.product.name)
-#            print(data.product.name,data.quantity)
+            # print(data.product.name,data.quantity)
         except Exception as e:
             data_for_maximum_item_sold.append(0)
             label_for_maximum_item_sold.append("None")
-#            print(e)
+            # print(e)
     return data_for_maximum_item_sold,label_for_maximum_item_sold
 
 
@@ -112,11 +112,11 @@ def minimum_item_sold_for_the_past_7_days(company,model):
             data = min(get_list_or_404(model,company = company,date = date_for_data),key = lambda x: x.quantity)
             data_for_minimum_item_sold.append(data.quantity)
             label_for_minimum_item_sold.append(data.product.name)
-#            print(data.product.name,data.quantity)
+            # print(data.product.name,data.quantity)
         except Exception as e:
             data_for_minimum_item_sold.append(0)
             label_for_minimum_item_sold.append("None")
-#            print(e)
+            # print(e)
     return data_for_minimum_item_sold,label_for_minimum_item_sold
 
 def maximum_item_sold_last_month(company,model):
@@ -127,7 +127,7 @@ def maximum_item_sold_last_month(company,model):
     labels_for_maximum_item_sold_last_month = []
     products = {p.name:0 for p in company.product_set.all()} # Get all the company's products
 
-#    print(products)
+    # print(products)
     for i in range(1,5):
         # Week 1
         if i == 1:
@@ -194,7 +194,7 @@ def minimum_item_sold_last_month(company,model):
     labels_for_minimum_item_sold_last_month = []
     products = {p.name:0 for p in company.product_set.all()} # Get all the company's products
 
-#    print(products)
+    # print(products)
     for i in range(1,5):
         # Week 1
         if i == 1:
@@ -252,8 +252,8 @@ def minimum_item_sold_last_month(company,model):
 
     return data_for_last_month,labels_for_minimum_item_sold_last_month
 
-# A function that provides the cost,revenue and profit for the past 7 days
-def cost_revenue_and_profit_for_the_past_7_days(company,model):
+# A function that provides the revenue for the past 7 days
+def revenue_for_the_past_7_days(company,model):
     # A dictionary to store data for the past 7 days
     data_for_past_7_days = {
         'revenue': [],
@@ -273,17 +273,17 @@ def cost_revenue_and_profit_for_the_past_7_days(company,model):
             # Append default value of 0.00
             data_for_past_7_days['revenue'].append(float(0.00))
 
-#    print(data_for_past_7_days)
+    # print(data_for_past_7_days)
     return data_for_past_7_days
 
 
-# A function that provides the cost,revenue and profit for last month
-def cost_revenue_and_profit_for_last_month(company,model):
+# A function that provides the revenue for last month
+def revenue_for_last_month(company,model):
     todays_date = date.today()
     # The last day of last month
     last_month_end = todays_date - timedelta(days = todays_date.day)
     # A dictionary that will store data for the month
-    data_of_cost_revenue_and_profit_for_last_month = {
+    data_of_revenue_for_last_month = {
         'revenue': []
     }
     # A dictionary that stores the start and end day of a week
@@ -302,14 +302,14 @@ def cost_revenue_and_profit_for_last_month(company,model):
                 weekly_data['revenue'] += float(data.total_revenue)
             # No data was found
             except model.DoesNotExist as e:
-#                print(e)
+                # print(e)
                 pass
 
         # Data gathered for the week
         for key,value in weekly_data.items():
-            data_of_cost_revenue_and_profit_for_last_month[key].append(value)
-#    print(data_of_cost_revenue_and_profit_for_last_month)
-    return data_of_cost_revenue_and_profit_for_last_month
+            data_of_revenue_for_last_month[key].append(value)
+    # print(data_of_revenue_for_last_month)
+    return data_of_revenue_for_last_month
 
 # A function that generates a custom product data
 def custom_product_analysis(company,model,total_months,start_from):
@@ -321,12 +321,12 @@ def custom_product_analysis(company,model,total_months,start_from):
             month = date(todays_date.year,start_from + i,1)
             datas = model.objects.filter(company = company,date__month = month.month, date__year = todays_date.year)
             custom_data.append(sum([data.quantity for data in datas]))
-#    print(custom_data)
+    # print(custom_data)
     return custom_data
 
 
-# A function that generates a custom cost,reveneue and profit analysis
-def custom_cost_revenue_profit_analysis(company,model,total_months,start_from):
+# A function that generates a custom reveneue analysis
+def custom_revenue_analysis(company,model,total_months,start_from):
     todays_date = date.today()
     custom_data = {
         'revenue': [],
@@ -338,7 +338,7 @@ def custom_cost_revenue_profit_analysis(company,model,total_months,start_from):
             # print(month)
             datas = model.objects.filter(company = company,date__month = month.month,date__year = todays_date.year)
             custom_data['revenue'].append(float(sum(data.total_revenue for data in datas)))
-#    print(custom_data)
+    # print(custom_data)
     return custom_data
 
 
@@ -448,7 +448,7 @@ def sales_report_for_last_month(company,model):
         # Provide all the products the company has and give them a default quantity
         products = {p.name: 0 for p in company.product_set.all()}
         for day in range(*days_range):
-#            print(day)
+            # print(day)
             date_for_data = last_month_end - timedelta(days = last_month_end.day - day - 1)
             # Get all the data for that day
             datas = model.objects.filter(company = company,date = date_for_data)
@@ -485,7 +485,7 @@ def custom_sales_report(company,model,total_months,start_from):
             total = 0
             # Get the month
             month = date(todays_date.year,start_from + i,1)
-#            print(month)
+            # print(month)
             # A dictionary to store the products
             products = {p.name:0 for p in company.product_set.all()}
             # Data for that month

@@ -10,7 +10,7 @@
     {% if type == 'product' %}
        <input type="hidden" id="type" value="product">
     {% else %}
-        <input type="hidden" id="type" value="cost-revenue-profit">
+        <input type="hidden" id="type" value="revenue">
     {% endif %}
     <div class="row no-gutters">
         <div class="col-12">
@@ -98,7 +98,7 @@
                         $("#graph-container").css('visibility','visible');
                         $('#graph-container').slideDown();
                         $('#graph-container > .card-header').text(data['title']);
-                        analysisType === 'product' ? generateGraph('product',data['months'],data['title'],data['custom_data']) : generateGraph('cost-revenue-profit',data['months'],data['title'],null,data['revenue'])
+                        analysisType === 'product' ? generateGraph('product',data['months'],data['title'],data['custom_data']) : generateGraph('revenue',data['months'],data['title'],null,data['revenue'])
                     },
                 );
             });
@@ -124,7 +124,7 @@
                     }
                 ];
             }
-            else if(analysisType === 'cost-revenue-profit'){
+            else if(analysisType === 'revenue'){
                 yLabel = 'GHC';
                 dataset = [
                     {

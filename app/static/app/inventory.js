@@ -42,10 +42,6 @@ let searchInventory = (url,detailPath,editPath) => {
                                                 <span class = 'text-primary'>${ product.qty }</span>
                                             </p>
                                             <p class="text-dark small m-auto">
-                                               Unit Cost:
-                                                <span class = 'text-primary'>GH&#8373; ${product.cost}</span>
-                                            </p>
-                                            <p class="text-dark small m-auto">
                                                Unit Price:
                                                 <span class = 'text-primary'>GH&#8373; ${ product.price }</span>
                                             </p>
